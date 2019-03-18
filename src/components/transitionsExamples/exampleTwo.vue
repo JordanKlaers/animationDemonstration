@@ -2,6 +2,7 @@
 	<div class="frame" id="transition-example-two">
 		<div class="square" ref="slide" @click="toggleSlideClass"></div>
 		<div class="square" ref="multipleProperties" @click="toggleMultiplePropertiesClass"></div>
+		<div> example two</div>
 	</div>
 </template>
 

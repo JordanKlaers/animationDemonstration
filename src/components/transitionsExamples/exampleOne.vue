@@ -3,6 +3,7 @@
 		<div class="square" ref="slide"></div>
 		<div class="square" ref="grow"></div>
 		<div class="square" ref="rotate"></div>
+		<div> example one</div>
 	</div>
 </template>
 
