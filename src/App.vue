@@ -1,11 +1,6 @@
 <template>
 	<div id="app">
-		<button v-on:click='updateStore'>update store</button>
-		<Container :value="undefined"></Container>
-		<div> {{ innerValue }} </div>
-		<div> test value ^^ and testValue two below VV </div>
-		<div> {{ additionalKey }} </div>
-		<!-- <div> {{ testValueTwo_innerValue }} </div> -->
+		<Container></Container>
 	</div>
 </template>
 
@@ -19,24 +14,12 @@ export default {
 		Container
 	},
 	data() {
-		return {
-			count: 1
-		}
+		return {}
 	},
 	computed: {
-		...mapGetters(['testValue', 'innerValue', 'additionalKey'])
-	},
-	mounted() {
-		console.log('testValue getter', this.testValue);
+		...mapGetters([])
 	},
 	methods: {
-		updateStore() {
-			this.count ++
-			store.commit('UPDATE_TEST_VALUE', {
-				innerValue: this.count,
-				additionalKey: this.count
-			})
-		}
 	}
 };
 </script>

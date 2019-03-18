@@ -23,7 +23,8 @@ module.exports = {
 		extensions: ['.js', '.vue', '.json', '.scss'],
 		alias: {
 			'src': resolve('src'),
-			'scss': resolve('./src/assets/scss')
+			'scss': resolve('./src/assets/scss'),
+			'transitions': resolve('src/components/transitionsExamples')
 		}
 	},
 	module: {
