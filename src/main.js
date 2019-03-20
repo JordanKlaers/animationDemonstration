@@ -2,7 +2,7 @@
 import Vue from 'vue';
 import App from './App';
 import Vuex from 'vuex'
-
+import _ from 'lodash';
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -26,7 +26,7 @@ const store = new Vuex.Store({
 	},
 	modules: {}
 });
-
+Vue.prototype.$_ = _;
 new Vue({
 	el: '#crazyapp',
 	components: { App },
@@ -35,5 +35,6 @@ new Vue({
 		return createElement(App);
 	}
 });
+
 
 export default store;

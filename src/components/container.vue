@@ -12,12 +12,14 @@
 <script>
 import TransitionOne from 'transitions/exampleOne.vue';
 import TransitionTwo from 'transitions/exampleTwo.vue';
-// v-on:before-enter="setAnimationStarted" v-on:before-leave="setAnimationStarted" v-on:after-leave="setAnimationCompleted" v-on:after-enter="setAnimationCompleted"
+import TransitionThree from 'transitions/exampleThree.vue';
+
 export default {	
 	name: 'container',
 	components: {
 		TransitionOne,
-		TransitionTwo
+		TransitionTwo,
+		TransitionThree
 	},
 	props: {
 		value: {
@@ -30,52 +32,39 @@ export default {
 			activeIndex: 0,
 			fadeDirection: 'up',
 			isActivlyAnimating: false,
-			componentDisplay: [true, false]
+			componentDisplay: []
 		}
 	},
 	computed: {
 		components() {
-			const numberOfComponents = this.$vnode && this.$vnode.componentOptions && this.$vnode.componentOptions.Ctor && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options.components && this.$vnode.componentOptions.Ctor.options.components;
+			const numberOfComponents = this.$vnode && this.$vnode.componentOptions && this.$vnode.componentOptions.Ctor && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options.components && this.$vnode.componentOptions.Ctor.options.components
 			const components = Object.assign({}, numberOfComponents)
-			delete components.container;
-			return components;
+			delete components.container
+			return components
 		},
 		numberOfComponents() {
-			const numberOfComponents = Object.keys(this.components).length;
-			console.log('number of components', numberOfComponents);
-			return numberOfComponents;
-		}
-		// componentDisplay() {
-		// 	const array = []
-		// 	for (let i = 0; i < this.numberOfComponents; i++) {
-		// 		array.push(false);
-		// 	}
-		// 	array[0] = true;
-		// 	return array
-		// }
-	},
-	watch: {
-		activeIndex(newVal) {
-			console.log('active index changing', newVal);
+			const numberOfComponents = Object.keys(this.components).length
+			let displayArray = []
+			this.$_.forEach(Object.keys(this.components), (value, index) => {
+				if (index === 0) displayArray.push(true)
+				else displayArray.push(false)
+				this.componentDisplay = displayArray
+			});
+			return numberOfComponents
 		}
 	},
 	mounted() {
+		console.log('lodash??', this.$_);
 		window.addEventListener('wheel', this.handleScroll)
-		document.getElementById('enterHere').appendChild(document.createElement('<div> hello</div>'))
 	},
 	methods: {
 		handleScroll(event) {
-			// console.log('event', event);
-			// if (!this.isActivlyAnimating) {
-			// this.isActivlyAnimating = true;
-			console.log('this.activeIndex', this.activeIndex);
-			this.fadeDirection = event.deltaY < 0 ? 'down' : 'up';
-			if ((this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down') || (this.fadeDirection === 'up' && this.activeIndex > 0)) {
-				
-				// console.log('this.componentDisplay', this.componentDisplay);
+			//the window height + the distance scrolled, should be equal to the heigh of the total content
+			const isScrolledToBottom = Math.abs((window.innerHeight + window.scrollY) - document.body.scrollHeight) < 3
+			this.fadeDirection = event.deltaY < 0 ? 'up' : 'down';
+			if ((this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down' && isScrolledToBottom) || (this.fadeDirection === 'up' && this.activeIndex > 0 && window.scrollY === 0)) {
 				this.componentDisplay = this.componentDisplay.map(() => false);
 				this.shouldLoadNextModule = true;
-				console.log('this.componentDisplay', this.componentDisplay);
 			}
 		},
 		setAnimationStarted() {
@@ -84,10 +73,8 @@ export default {
 		setAnimationCompleted() {
 			if (this.shouldLoadNextModule) {
 				if (this.fadeDirection === 'down') {
-					// console.log('down', this.numberOfComponents);
 					if (this.activeIndex < this.numberOfComponents) this.activeIndex ++;
 				} else {
-					// console.log('up');
 					if (this.activeIndex > 0) this.activeIndex --;
 				}
 				this.componentDisplay = this.componentDisplay.map((val, index) => index === this.activeIndex ? true : false)
@@ -99,10 +86,20 @@ export default {
 </script>
 <style lang="scss">
 .up-enter-active, .up-leave-active, .down-enter-active, .down-leave-active {
-  transition: opacity 2s;
+  transition: all 0.5s ease-in-out;
 }
-.up-enter, .up-leave-to, .down-enter, .down-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
+.up-enter, .up-leave-to {
+	top: -150px;
+	opacity: 0;
 }
+.up-enter-to, .down-enter-to, .up-leave, .down-leave {
+	top: 0;
+	opacity: 1;
+}
+.down-enter, .down-leave-to {
+	top: 150px;
+	opacity: 0;
+}
+
 </style>
 

@@ -1,43 +1,28 @@
 <template>
-	<div class="frame" id="transition-example-two" @click="toggleClasses">
-		<span class="title">Example Two</span>
-		<div class="square" ref="slide"></div>
-		<div class="square" ref="grow"></div>
-		<div class="square" ref="rotate"></div>
-		
+	<div class="frame" id="transition-example-three">
+		<span class="title">Example Three</span>
 	</div>
 </template>
 
 <script>
 export default {
-	name: 'transitionExampleTwo',
+	name: 'transitionExampleThree',
 	components: {
 	},
 	data() {
 		return {
 		}
 	},
+	mounted() {
+	},
 	methods: {
-		toggleClasses() {
-			const slide = this.$refs.slide;
-			const grow = this.$refs.grow;
-			const rotate = this.$refs.rotate;
-			if (slide && grow && rotate && slide.classList.contains('slide')) {
-				slide.classList.remove('slide');
-				grow.classList.remove('grow');
-				rotate.classList.remove('rotate');
-			} else {
-				slide.classList.add('slide');
-				grow.classList.add('grow');
-				rotate.classList.add('rotate');
-			}
-		}
+		toggleClasses() {}
 	}
 };
 </script>
 <style lang='scss'>
 $frame-dimensions: 400;
-#transition-example-two {
+#transition-example-three {
 	&.frame {
 		position: relative;
 		width: $frame-dimensions + px;
