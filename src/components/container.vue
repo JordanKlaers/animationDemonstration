@@ -35,6 +35,14 @@ export default {
 			componentDisplay: []
 		}
 	},
+	created() {
+		let displayArray = []
+		this.$_.forEach(Object.keys(this.components), (value, index) => {
+				if (index === 0) displayArray.push(true)
+				else displayArray.push(false)
+			});
+		this.componentDisplay = displayArray
+	},
 	computed: {
 		components() {
 			const numberOfComponents = this.$vnode && this.$vnode.componentOptions && this.$vnode.componentOptions.Ctor && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options.components && this.$vnode.componentOptions.Ctor.options.components
@@ -44,12 +52,6 @@ export default {
 		},
 		numberOfComponents() {
 			const numberOfComponents = Object.keys(this.components).length
-			let displayArray = []
-			this.$_.forEach(Object.keys(this.components), (value, index) => {
-				if (index === 0) displayArray.push(true)
-				else displayArray.push(false)
-				this.componentDisplay = displayArray
-			});
 			return numberOfComponents
 		}
 	},
@@ -62,10 +64,13 @@ export default {
 			//the window height + the distance scrolled, should be equal to the heigh of the total content
 			const isScrolledToBottom = Math.abs((window.innerHeight + window.scrollY) - document.body.scrollHeight) < 3
 			this.fadeDirection = event.deltaY < 0 ? 'up' : 'down';
-			if ((this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down' && isScrolledToBottom) || (this.fadeDirection === 'up' && this.activeIndex > 0 && window.scrollY === 0)) {
-				this.componentDisplay = this.componentDisplay.map(() => false);
-				this.shouldLoadNextModule = true;
-			}
+			this.$nextTick(() => {
+				console.log('this.fadeDirection', this.fadeDirection);
+				if ((this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down' && isScrolledToBottom) || (this.fadeDirection === 'up' && this.activeIndex > 0 && window.scrollY === 0)) {
+					this.componentDisplay = this.componentDisplay.map(() => false);
+					this.shouldLoadNextModule = true;
+				}
+			})
 		},
 		setAnimationStarted() {
 			// this.isActivlyAnimating = true;
@@ -88,7 +93,7 @@ export default {
 .up-enter-active, .up-leave-active, .down-enter-active, .down-leave-active {
   transition: all 0.5s ease-in-out;
 }
-.up-enter, .up-leave-to {
+.up-enter, .down-leave-to {
 	top: -150px;
 	opacity: 0;
 }
@@ -96,7 +101,7 @@ export default {
 	top: 0;
 	opacity: 1;
 }
-.down-enter, .down-leave-to {
+.down-enter, .up-leave-to {
 	top: 150px;
 	opacity: 0;
 }
