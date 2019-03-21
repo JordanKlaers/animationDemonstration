@@ -20,10 +20,11 @@ module.exports = {
 		open: true
 	},
 	resolve: {
-		extensions: ['.js', '.vue', '.json', '.scss'],
+		extensions: ['.js', '.vue', '.json', '.scss', '.jpg'],
 		alias: {
 			'src': resolve('src'),
 			'scss': resolve('./src/assets/scss'),
+			'images': resolve('./src/assets/images'),
 			'transitions': resolve('src/components/transitionsExamples')
 		}
 	},
@@ -40,7 +41,16 @@ module.exports = {
 			{
 				test: /\.vue$/,
 				loader: 'vue-loader'
-			}
+			},
+			{
+				test: /\.(png|jpg|gif)$/,
+				use: [
+					{
+						loader: 'file-loader',
+						options: {},
+					},
+				],
+			},
 		]
 	},
 	mode: "development",
