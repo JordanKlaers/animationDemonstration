@@ -3,7 +3,7 @@
 		<span class="title">Example Three</span>
 		<div class="tabs-container">
 			<template v-for="(entry, index) in tabs">
-				<div class="tab" :key="`tab-${entry}`">{{entry}}</div>
+				<div class="tab" :key="`tab-${entry}`" @click="() => updateActiveIndex(index)">{{entry}}</div>
 				<span class='image-container' :key="entry" :class="{ 'in-view': index === activeIndex }">
 					<img :src="getImagePath(entry)"/>
 				</span>
@@ -20,14 +20,30 @@ export default {
 	data() {
 		return {
 			tabs: ['red', 'orange', 'yellow', 'limegreen', 'green', 'turquoise', 'blue', 'purple', 'pink'],
-			activeIndex: 3
+			activeIndex: 0
 		}
 	},
 	mounted() {
+		window.addEventListener('keydown', this.arrowKeyPress)
 	},
 	methods: {
 		getImagePath(color) {
 			return require(`images/${color}.jpg`);
+		},
+		updateActiveIndex(index) {
+			this.activeIndex = index;
+		},
+		arrowKeyPress(event) {
+			const dir = event.keyCode === 38 ? 'up' : event.keyCode === 40 ? 'down' : '';
+			console.log('dir', dir);
+			let index;
+			console.log('this.activeIndex', this.activeIndex);
+			if (dir === 'up' && this.activeIndex > 0) {
+				index = this.activeIndex - 1;
+			} else if (dir === 'down' && this.activeIndex < this.tabs.length - 1) {
+				index = this.activeIndex + 1;
+			}
+			if (index || index === 0) this.updateActiveIndex(index);
 		}
 	}
 };
