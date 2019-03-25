@@ -2,7 +2,7 @@
 import Vue from 'vue';
 import App from './App';
 import Vuex from 'vuex'
-import _ from 'lodash';
+import prototypes from './vuePrototypes.js';
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -26,7 +26,11 @@ const store = new Vuex.Store({
 	},
 	modules: {}
 });
-Vue.prototype.$_ = _;
+
+for (let key in prototypes) {
+	Vue.prototype[key] = prototypes[key];
+}
+
 new Vue({
 	el: '#crazyapp',
 	components: { App },
