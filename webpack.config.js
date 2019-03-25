@@ -25,7 +25,8 @@ module.exports = {
 			'src': resolve('src'),
 			'scss': resolve('./src/assets/scss'),
 			'images': resolve('./src/assets/images'),
-			'transitions': resolve('src/components/transitionsExamples')
+			'transitions': resolve('src/components/transitionsExamples'),
+			'keyFrame': resolve('src/components/keyFrameExamples')
 		}
 	},
 	module: {

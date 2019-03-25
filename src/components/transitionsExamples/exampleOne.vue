@@ -1,9 +1,8 @@
 <template>
-	<div class="frame" id="transition-example-one">
+	<div class="animation-example-frame" id="transition-example-one">
 		<span class="title">Example One</span>
 		<div class="square" ref="slide" @click="toggleSlideClass"></div>
 		<div class="square" ref="multipleProperties" @click="toggleMultiplePropertiesClass"></div>
-		
 	</div>
 </template>
 
@@ -37,49 +36,25 @@ export default {
 };
 </script>
 <style lang='scss'>
-$frame-dimensions: 400;
+@import 'scss/variables';
 #transition-example-one {
-	&.frame {
-		position: relative;
-		width: $frame-dimensions + px;
-		height: $frame-dimensions + px;
-		border: 1px solid rgba(0,0,0,0.1);
-		border-radius: 2px;
-		box-shadow: 4px 8px 16px 0 rgba(0,0,0,0.1);
-		background: #fff;
-		color: #333;
-		.title {
-			position: absolute;
-			bottom: $frame-dimensions + px;
+	.square {
+		// Adding the trasition property on the classes shared by the two elements will apply the same animation property to  all three blocks.
+		transition-duration: 0.5s;
+		transition-property: all;
+		transition-timing-function: linear;
+		&:last-of-type {
+			top: $square-dim + $spacer + px;
 		}
-		.square {
-			$square-dim: 70;
-			$spacer: 10;
-			position: absolute;
-			background-color: black;
-			height: $square-dim + px;
-			width: $square-dim + px;
-			margin: $spacer + px;
-			left: 0px;
-			// Adding the trasition property on the classes shared by the tree elements will apply the same animation property to  all three blocks.
-			transition-duration: 0.5s;
-			transition-property: all;
-			transition-timing-function: linear;
-			&:last-of-type {
-				top: $square-dim + $spacer + px;
-			}
-			&.slide {
-				left: 100px;
-			}
-			&.multiple-properties {
-				height: ($square-dim * 2) + px;
-				width: ($square-dim * 2) + px;
-				transform: rotate(180deg);
-				background-color: green;
-			}
+		&.slide {
+			left: 100px;
+		}
+		&.multiple-properties {
+			height: ($square-dim * 2) + px;
+			width: ($square-dim * 2) + px;
+			transform: rotate(180deg);
+			background-color: green;
 		}
 	}
-
 }
-
 </style>

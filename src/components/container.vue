@@ -13,13 +13,18 @@
 import TransitionOne from 'transitions/exampleOne.vue';
 import TransitionTwo from 'transitions/exampleTwo.vue';
 import TransitionThree from 'transitions/exampleThree.vue';
+import KeyFrameOne from 'keyFrame/exampleOne.vue';
+import KeyFrameTwo from 'keyFrame/exampleTwo.vue';
 
-export default {	
+export default {
+	// componentDisplay[index]
 	name: 'container',
 	components: {
 		TransitionOne,
 		TransitionTwo,
-		TransitionThree
+		TransitionThree,
+		KeyFrameOne,
+		KeyFrameTwo
 	},
 	props: {
 		value: {
@@ -56,7 +61,6 @@ export default {
 		}
 	},
 	mounted() {
-		console.log('lodash??', this.$_);
 		window.addEventListener('wheel', this.handleScroll)
 	},
 	methods: {
@@ -65,7 +69,6 @@ export default {
 			const isScrolledToBottom = Math.abs((window.innerHeight + window.scrollY) - document.body.scrollHeight) < 3
 			this.fadeDirection = event.deltaY < 0 ? 'up' : 'down';
 			this.$nextTick(() => {
-				console.log('this.fadeDirection', this.fadeDirection);
 				if ((this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down' && isScrolledToBottom) || (this.fadeDirection === 'up' && this.activeIndex > 0 && window.scrollY === 0)) {
 					this.componentDisplay = this.componentDisplay.map(() => false);
 					this.shouldLoadNextModule = true;

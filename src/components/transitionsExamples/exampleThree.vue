@@ -1,11 +1,12 @@
 <template>
-	<div class="frame" id="transition-example-three">
+	<div class="animation-example-frame" id="transition-example-three">
 		<span class="title">Example Three</span>
 		<div class="tabs-container">
 			<template v-for="(entry, index) in tabs">
-				<div class="tab" :key="`tab-${entry}`" @click="() => updateActiveIndex(index)">{{entry}}</div>
-				<span class='image-container' :key="entry" :class="{ 'in-view': index === activeIndex }">
+				<div :class="`tab-${index}`" :key="`tab-${entry}`" @click="() => updateActiveIndex(index)">{{entry}}</div>
+				<span class='image-container' :key="entry" :class="{ 'in-view': (index === activeIndex && !shouldHide)}">
 					<img :src="getImagePath(entry)"/>
+					<!-- <span class="inner-content"></span> -->
 				</span>
 			</template>
 		</div>
@@ -20,7 +21,8 @@ export default {
 	data() {
 		return {
 			tabs: ['red', 'orange', 'yellow', 'limegreen', 'green', 'turquoise', 'blue', 'purple', 'pink'],
-			activeIndex: 0
+			activeIndex: -1,
+			shouldHide: false
 		}
 	},
 	mounted() {
@@ -28,71 +30,77 @@ export default {
 	},
 	methods: {
 		getImagePath(color) {
-			return require(`images/${color}.jpg`);
+			return require(`images/${color}.jpg`)
 		},
 		updateActiveIndex(index) {
-			this.activeIndex = index;
+			if (index === this.activeIndex) {
+				console.log('this', this);
+				this.toggleHideCurrentIndex()
+			} else {
+				this.shouldHide = false;
+			}
+			this.activeIndex = index
+		},
+		toggleHideCurrentIndex() {
+			this.shouldHide = !this.shouldHide
+			console.log('called', this.shouldHide)
 		},
 		arrowKeyPress(event) {
-			const dir = event.keyCode === 38 ? 'up' : event.keyCode === 40 ? 'down' : '';
-			console.log('dir', dir);
-			let index;
-			console.log('this.activeIndex', this.activeIndex);
+			const dir = event.keyCode === 38 ? 'up' : event.keyCode === 40 ? 'down' : ''
+			let index
 			if (dir === 'up' && this.activeIndex > 0) {
-				index = this.activeIndex - 1;
+				index = this.activeIndex - 1
 			} else if (dir === 'down' && this.activeIndex < this.tabs.length - 1) {
-				index = this.activeIndex + 1;
+				index = this.activeIndex + 1
 			}
-			if (index || index === 0) this.updateActiveIndex(index);
+			if (index || index === 0) this.updateActiveIndex(index)
 		}
 	}
 };
 </script>
 <style lang='scss'>
 @import 'scss/_mixins.scss';
-$frame-dimensions: 400;
 #transition-example-three {
-	&.frame {
-		position: relative;
-		width: $frame-dimensions + px;
-		height: $frame-dimensions + px;
-		border: 1px solid rgba(0,0,0,0.1);
-		border-radius: 2px;
-		box-shadow: 4px 8px 16px 0 rgba(0,0,0,0.1);
-		background: #fff;
-		color: #333;
-		padding: 10px;
-		.title {
-			position: absolute;
-			bottom: $frame-dimensions + px;
+	.tabs-container {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		$colors: red, orange, yellow, limeGreen, green, turquoise, blue, purple, pink;
+		@for $i from 1 through length($colors) {
+			.tab-#{$i - 1} {
+				font-family: cursive;
+				line-height: 23px;
+				padding-left: 5px;
+				text-shadow: 0px 0px 7px white;
+				font-weight: bold;
+				width: 100%;
+				height: 30px;
+				@include border-rounded-corners(2px, 5px);
+				background-color: nth($colors, $i);
+			}
 		}
-		.tabs-container {
-			height: 100%;
+		.image-container {
+			width: 100%;
+			flex: 1;
+			// overflow hidden because the  image is larger than the container and was not resized to fit.
+			overflow: hidden;
+			//flex/column and justify content to the end, allows the  image container to fill the remaining sapce of the parent container, while aligning the image to the bottom.
 			display: flex;
 			flex-direction: column;
-			$colors: red, orange, yellow, limeGreen, green, turquoise, blue, purple, pink;
-			@for $i from 1 through length($colors) {
-				div:nth-of-type(#{$i}) {
-					width: 100%;
-					height: 30px;
-					@include border-rounded-corners(2px, 5px);
-					background-color: nth($colors, $i);
-				}
+			justify-content: flex-end;
+			max-height: 0px;
+			will-change: max-height;
+			transition: max-height 0.5s linear;
+			&.in-view {
+				//this value can be set dynamically via javascript if you dont know  the  height of the  content
+				//https://codepen.io/jordanklaers/pen/GePGmp?editors=0111
+				max-height: 108px;
 			}
-			.image-container {
+			img {
+				object-fit: cover;
 				width: 100%;
-				flex: 1;
-				overflow: hidden;
-				display: none;
-				&.in-view {
-					display: initial
-				}
-				img {
-					width: 100%;
-				}
 			}
 		}
 	}
 }
-
 </style>

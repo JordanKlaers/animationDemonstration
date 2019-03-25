@@ -1,5 +1,35 @@
 @import '_mixins';
+@import 'variables';
 #container {
 	width: auto;
 	margin: auto;
+}
+
+$animation-frame-dimension: 400;
+.animation-example-frame {
+	position: relative;
+	width: $animation-frame-dimension + px;
+	height: $animation-frame-dimension + px;
+	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 2px;
+	box-shadow: 4px 8px 16px 0 rgba(0,0,0,0.1);
+	background: #fff;
+	color: #333;
+	padding: 10px;
+	box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+	.title {
+		position: absolute;
+		bottom: $animation-frame-dimension + px;
+	}
+	.square {
+		$square-dim: 70;
+		$spacer: 10;
+		position: absolute;
+		background-color: black;
+		height: $square-dim + px;
+		width: $square-dim + px;
+		margin: $spacer + px;
+		left: 0px;
+		top: 0;
+	}
 }
