@@ -2,7 +2,7 @@
 	<div id='container'>
 		<template v-for="(component, name, index) in components">
 			<transition :key="component.name" :name="fadeDirection" v-on:before-enter="setAnimationStarted" v-on:before-leave="setAnimationStarted" v-on:after-leave="setAnimationCompleted" v-on:after-enter="setAnimationCompleted">
-				<component :key="component.name" :is="component" v-if="index === 5"></component>
+				<component :key="component.name" :is="component" v-if="index === 6"></component>
 			</transition>
 		</template>
 		<div id="enterHere"></div>
@@ -16,6 +16,7 @@ import TransitionThree from 'transitions/exampleThree.vue';
 import KeyFrameOne from 'keyFrame/exampleOne.vue';
 import KeyFrameTwo from 'keyFrame/exampleTwo.vue';
 import KeyFrameThree from 'keyFrame/exampleThree.vue';
+import AnimationFrameThree from 'animationFrame/frameExampleThree.vue';
 
 export default {
 	// componentDisplay[index]
@@ -26,7 +27,8 @@ export default {
 		TransitionThree,
 		KeyFrameOne,
 		KeyFrameTwo,
-		KeyFrameThree
+		KeyFrameThree,
+		AnimationFrameThree
 	},
 	props: {
 		value: {

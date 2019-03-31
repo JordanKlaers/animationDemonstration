@@ -25,8 +25,10 @@ module.exports = {
 			'src': resolve('src'),
 			'scss': resolve('./src/assets/scss'),
 			'images': resolve('./src/assets/images'),
+			'scripts': resolve('./src/assets/scripts'),
 			'transitions': resolve('src/components/transitionsExamples'),
-			'keyFrame': resolve('src/components/keyFrameExamples')
+			'keyFrame': resolve('src/components/keyFrameExamples'),
+			'animationFrame': resolve('src/components/animationFrameExamples')
 		}
 	},
 	module: {
