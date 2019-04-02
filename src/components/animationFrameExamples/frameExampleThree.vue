@@ -1,6 +1,12 @@
 <template>
 	<div class="animation-example-frame" id="keyframe-example-three">
 		<span class="title">Example Three</span>
+		<div class="text-container">
+			<div id="my-name">Jordan Klaers</div>
+		</div>
+		<div class="text-container">
+			<div id="login-text">Login with FingerPrint ID</div>
+		</div>
 		<svg class="svg-element" viewBox="0 0 400 400">
 			<defs>
 				<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -74,8 +80,8 @@
 <script>
 import svg from './svg';
 import * as d3 from 'd3';
-import {TweenMax, TimelineLite} from "gsap/TweenMax";
-import morphSVG from "gsap/morphSVGPlugin";
+import {TweenMax, TimelineLite} from "scripts/gsap";
+import morphSVG from "scripts/gsap/morphSVGPlugin";
 
 export default {
 	name: 'keyframeExampleThree',
@@ -291,43 +297,32 @@ export default {
 }
 $font: Muli, sans-serif;
 
-// .demo {
-//   min-height: 100vh;
-//   background-color: #009CDE;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   // font-size: 10;
-//   user-select: none;
-//   // overflow: hidden;
-.animation-example-frame {
+#keyframe-example-three {
 	padding: 0;
-  .container {
-    width: 400px;
-    height: 400px;
-    // background-color: red;
-    position: relative;
-    display: flex;
+	display: flex;
     flex-wrap: wrap;
+	align-content: flex-start;
     .text-container {
        // visibility: hidden;
-      flex-basis: 400px;//0%;
-      #my-name {
-        margin: 0 auto;
-        color: white;
-        font-family: $font;
-        font-size: 16px;
-        z-index: 100;
-      }
-      #login-text{
-        margin: 0 auto;
-        color: white;
-        font-family: $font;
-        font-size: 16px;
-        z-index: 100;
-      }
+	    z-index: 10;
+    	color: white;
+    	display: flex;
+      	flex-basis: 400px;//0%;
+      	#my-name {
+        	margin: 20px auto 90px auto;
+        	color: white;
+        	font-family: $font;
+    	    font-size: 16px;
+	        z-index: 100;
+      	}
+      	#login-text{
+        	margin: 20px auto 10px auto;
+        	color: white;
+        	font-family: $font;
+        	font-size: 16px;
+        	z-index: 100;
+		}
     }
-  }
   
   .svg-element {
     // visibility:hidden;
