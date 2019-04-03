@@ -36,7 +36,7 @@
 				<path class="fprint-path" d="M72,244.9c0,0,8.8-9.9,9.9-15.7"/>
 				<path class="fprint-path" d="M84.5,223c0.3-2.6,0.5-5.2,0.7-7.8c0.1-2.1,0.2-4.6-0.1-6.8c-0.3-2.2-1.1-4.3-0.9-6.5c0.5-4.4,7.2-6.9,10.1-3.1 c1.7,2.2,1.7,5.3,1.9,7.9c0.4,3.8,0.3,7.6,0,11.4c-1,10.8-5.4,21-11.5,29.9"/>
 				<path class="fprint-path" d="M90,201.2c0,0,4.6,28.1-11.4,45.2"/>
-				<path class="fprint-path" d="M67.3,219C65,188.1,78,180.1,92.7,180.3c18.3,2,23.7,18.3,20,46.7"/>
+				<path class="fprint-path" id="elastic-starting" d="M67.3,219C65,188.1,78,180.1,92.7,180.3c18.3,2,23.7,18.3,20,46.7"/>
 			</g>
 			<g id="fill-fprint" transform="translate(110,50)">
 				<path class="fprint-path light-purple" d="M46.1,214.3c0,0-4.7-15.6,4.1-33.3"/>
@@ -101,7 +101,10 @@ export default {
 			previousRAFTimeStamp: 0 ,
 			isfingerPrintFillAnimationComplete: false,
 			hasFingerPrintRemoveCompleted: false,
-			shouldMorphIntoGraphLine: true
+			shouldMorphIntoGraphLine: true,
+			fingerPrintToStraightLineAnimation: null,
+			fingerPrintToGraphLineAnimation: null,
+			fingerPrintResetAnimation: null
 		}
 	},
 	mounted() {
@@ -112,19 +115,16 @@ export default {
 		}
 		this.createGraphLine();
 		this.setFingerPrintStartingState();
-		document.addEventListener('mousedown', () =>{
-			console.log('mouse down');
-  			this.fillDirection = 'forwards';
-  			if (!this.isfingerPrintFillAnimationComplete) window.requestAnimationFrame(this.fillFingerPrint);
-		})
-		document.addEventListener('mouseup', ()=>{
-  			this.fillDirection = 'backwards';
-		})
+		document.addEventListener('mousedown', this.tirggerFillForwards)
+		document.addEventListener('mouseup', this.setFillDirection)
 	},
 	methods: {
 		setUp() {
-			console.log('setup called');
 			
+			
+		},
+		setFillDirection() {
+			this.fillDirection = 'backwards';
 		},
 		createGraphLine() {
 			var width = 400; //should match the width and height of the SVG
@@ -147,8 +147,7 @@ export default {
 			dataset[0].y = 0.5
 			dataset[n-1].y = 0.5
 
-			var svg = d3.select("svg").append("g")
-			console.log('when making the graph line- sgv', svg);
+			var svg = d3.select("svg").append("g").attr("id", "graph")
 			svg.append("path")
 				.datum(dataset) // 10. Binds data to the line 
 				.attr("id", "graph-line") // Assign a class for styling 
@@ -200,7 +199,6 @@ export default {
 			return  (endValue - startValue) / ticksToComplete; //return the value that will be incremented each tick of the animation
 		},
 		fillFingerPrint(timestamp) {
-			console.log('gettingcalled');
 			if (timestamp - this.previousRAFTimeStamp > 1000/60) {
 				this.previousRAFTimeStamp = timestamp;
 				if (this.fillDirection === 'forwards') {
@@ -251,39 +249,81 @@ export default {
 			if (!this.hasFingerPrintRemoveCompleted) window.requestAnimationFrame(this.removeFingerPrintPaths);
 		},
 		transform() {
+			console.log('transform called??');
 			document.getElementById('demo__elastic-path').classList.add('solid-stroke');
-			const elasticAnimationTimeline = new TimelineLite();
-			elasticAnimationTimeline.to('#demo__elastic-path', 0.3, {
+			this.fingerPrintToStraightLineAnimation = new TimelineLite();
+			this.fingerPrintToStraightLineAnimation.to('#demo__elastic-path', 0.3, {
 				delay: 0,
 				morphSVG: '#arc-to-top',
 			}).to('#demo__elastic-path', 1, {
 				morphSVG: '#straight-path',
 				ease: Elastic.easeOut.config(1.5, 0.3)
 			}).eventCallback('onComplete', ()=> {
-				const graphDot = document.getElementById('graph-dot');
-				const graphDotPositionY = graphDot && Number(graphDot.attributes.cy.value);
 				document.getElementById('dot').classList.add('land-on-line');
-				document.getElementById('dot').addEventListener('transitionend', () => {
-					if (this.shouldMorphIntoGraphLine) {
-						this.shouldMorphIntoGraphLine = false;
-						document.getElementById('dot').classList.add('follow-line-bend');
-						setTimeout(() => {
-							document.getElementById('dot').style.transition = 'transform 1s linear';
-							document.getElementById('dot').style.transform = `translateY(${graphDotPositionY + 50}px)`
-						},490);
-						console.log(Elastic.easeOut.config(1.5, 0.3));
-						elasticAnimationTimeline.to('#demo__elastic-path', 0.5, {
-							delay: 0,
-							morphSVG: '#arc-to-bottom',
-							ease: Power0.easeNone
-						}).to('#demo__elastic-path', 1, {
-							delay: 0,
-							morphSVG: '#graph-line',
-							ease: Power0.easeNone
-						});
-					}
-				})
+				document.getElementById('dot').addEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
 			})
+		},
+		finishMovingDotAndLineToGraphAnimation() {
+			this.fingerPrintToGraphLineAnimation = new TimelineLite();
+			const graphDot = document.getElementById('graph-dot');
+			const graphDotPositionY = graphDot && Number(graphDot.attributes.cy.value);
+			if (this.shouldMorphIntoGraphLine) {
+				this.shouldMorphIntoGraphLine = false;
+				console.log('adding follwo line bend class');
+				document.getElementById('dot').classList.add('follow-line-bend');
+				setTimeout(() => {
+					document.getElementById('dot').style.transition = 'transform 1s linear';
+					document.getElementById('dot').style.transform = `translateY(${graphDotPositionY + 50}px)`
+				},490);
+				this.fingerPrintToGraphLineAnimation.to('#demo__elastic-path', 0.5, {
+					delay: 0,
+					morphSVG: '#arc-to-bottom',
+					ease: Power0.easeNone
+				}).to('#demo__elastic-path', 1, {
+					delay: 0,
+					morphSVG: '#graph-line',
+					ease: Power0.easeNone
+				}).eventCallback('onComplete', ()=> {
+					document.removeEventListener('mousedown', this.triggerFillForwards)
+					document.removeEventListener('mouseup', this.setFillDirection)
+					document.getElementById('dot').removeEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
+					document.addEventListener('click', this.reset)
+				});
+			}
+		},
+		tirggerFillForwards() {
+			this.fillDirection = 'forwards';
+			if (!this.isfingerPrintFillAnimationComplete) window.requestAnimationFrame(this.fillFingerPrint);
+		},
+		reset() {
+			this.fingerPrintToStraightLineAnimation = null;
+			this.fingerPrintToGraphLineAnimation = null;
+			this.fingerPrintOffSetRatio = 1;
+			this.fingerPrintEndingPathOffSetRatio = 0;
+			this.fillDirection = 'forwards';
+			this.previousRAFTimeStamp = 0;
+			this.isfingerPrintFillAnimationComplete = false;
+			this.hasFingerPrintRemoveCompleted = false;
+			this.shouldMorphIntoGraphLine = true;
+			this.fingerPrintResetAnimation = new TimelineLite();
+			this.fingerPrintResetAnimation.to('#demo__elastic-path', 0.1, {morphSVG: '#elastic-starting'}).eventCallback('onComplete', ()=> {
+				console.log('wtf, c allback on the reset though');
+				this.fingerPrintResetAnimation = null
+			});
+			document.getElementById('starting-fprint').style.visibility = 'initial';
+			document.getElementById('graph').remove();
+			document.getElementById('dot').classList.remove('in-view');
+			document.getElementById('demo__elastic-path').classList.remove('solid-stroke');
+			document.getElementById('dot').classList.remove('land-on-line');
+			document.getElementById('dot').classList.remove('follow-line-bend');
+			document.getElementById('dot').style = null;
+			document.removeEventListener('click', this.reset)
+			setTimeout(()=>{
+				document.addEventListener('mouseup', this.setFillDirection)
+				document.addEventListener('mousedown', this.tirggerFillForwards)
+				this.createGraphLine();
+				this.setFingerPrintStartingState();
+			},1000)
 		}
 	}
 };
