@@ -113,6 +113,13 @@ export default {
     			setTimeout(() => cb(new Date()), 1000 / 60);
   			}
 		}
+		let loginDiv = document.getElementById('login-text')
+		for (let i =0; i < 30; i++) {
+			let dot = document.createElement('div')
+			dot.classList.add('particle')
+			loginDiv.appendChild(dot)
+		}
+		
 		this.createGraphLine();
 		this.setFingerPrintStartingState();
 		document.addEventListener('mousedown', this.tirggerFillForwards)
@@ -292,6 +299,13 @@ export default {
 			}
 		},
 		tirggerFillForwards() {
+			// console.log();
+			let collection = document.getElementsByClassName('particle')
+			console.log('collection', collection);
+			for (let el of collection) {
+				console.log('el', el);
+				el.classList.add('explode');
+			}
 			this.fillDirection = 'forwards';
 			if (!this.isfingerPrintFillAnimationComplete) window.requestAnimationFrame(this.fillFingerPrint);
 		},
@@ -355,12 +369,44 @@ $font: Muli, sans-serif;
     	    font-size: 16px;
 	        z-index: 100;
       	}
-      	#login-text{
+      	#login-text {
         	margin: 20px auto 10px auto;
         	color: white;
         	font-family: $font;
         	font-size: 16px;
         	z-index: 100;
+			position: relative;
+			.particle {
+				// @mixin particle($sweep, $time) {
+				width: 3px;
+				height: 3px;
+				border-radius: 50%;
+				background-color: white;
+				opacity: 1;
+				transition: all 5s ease;
+				position: absolute;
+				will-change: transform;
+				
+				//phones can't handle the particles very well :(
+				// @media (max-width: 400px) {
+				// 	display: none;
+				// }
+
+				@for $i from 1 through 30 {
+					&:nth-child(#{$i}) {
+						left: (random(100) - 100 / 2) * 1 + px;
+						@if random(100) > 50 {
+							background-color: red;
+						}
+						@else {
+							background-color: orange;
+						}
+					}
+					&.explode:nth-child(#{$i}) {
+						transform: translate3d((random(110) - 55) * 1 + px, random(35) * 1 + px, 0);
+					}
+				}
+			}
 		}
     }
   
