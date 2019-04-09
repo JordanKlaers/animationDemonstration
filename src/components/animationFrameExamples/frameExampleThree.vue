@@ -2,16 +2,26 @@
 	<div class="animation-example-frame" id="keyframe-example-three">
 		<span class="title">Example Three</span>
 		<div class="text-container">
-			<div id="my-name">Jordan Klaers</div>
+			<div id="my-name">
+				<p>Jordan Klaers</p>
+				<div id="name-particle-container"></div>
+			</div>
 		</div>
 		<div class="text-container">
-			<div id="login-text">Login with FingerPrint ID</div>
+			<div id="login-text">
+				<p>Login with FingerPrint ID<p>
+				<div id="login-particle-container"></div>
+			</div>
 		</div>
 		<svg class="svg-element" viewBox="0 0 400 400">
 			<defs>
 				<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
-				<stop offset="0%"   stop-color="#8742cc"/>
-				<stop offset="100%" stop-color="#a94a8c"/>
+					<stop offset="0%"   stop-color="#8742cc"/>
+					<stop offset="100%" stop-color="#a94a8c"/>
+				</linearGradient>
+				 <linearGradient id="blue-gradient" x1="50%" y1="-2.48949813e-15%" x2="50%" y2="100%" >
+					<stop stop-color="#5757D9" offset="0%"/>
+					<stop stop-color="#21D9F7" offset="100%"/>
 				</linearGradient>
 			</defs>
 			<g id="starting-fprint" transform="translate(110,50)">
@@ -113,11 +123,15 @@ export default {
     			setTimeout(() => cb(new Date()), 1000 / 60);
   			}
 		}
-		let loginDiv = document.getElementById('login-text')
-		for (let i =0; i < 30; i++) {
+		let loginDiv = document.getElementById('login-particle-container')
+		let nameDiv = document.getElementById('name-particle-container')
+		for (let i = 0; i < 30; i++) {
 			let dot = document.createElement('div')
 			dot.classList.add('particle')
 			loginDiv.appendChild(dot)
+			let dot2 = document.createElement('div')
+			dot2.classList.add('particle')
+			nameDiv.appendChild(dot2)
 		}
 		
 		this.createGraphLine();
@@ -127,7 +141,10 @@ export default {
 	},
 	methods: {
 		setUp() {
-			
+			//for gettings the dates
+			// now = new Date()
+			// now.setDate(now.getDate() + 24)
+			// console.log(now.getDate());
 			
 		},
 		setFillDirection() {
@@ -160,6 +177,14 @@ export default {
 				.attr("id", "graph-line") // Assign a class for styling 
 				.attr("d", line) // 11. Calls the line generator 
 				.style('visibility', 'hidden')
+			var graphLineGradient = d3.select("#fill-fprint").append("path")
+				.datum(dataset) // 10. Binds data to the line 
+				.attr("id", "graph-line-gradient") // Assign a class for styling 
+				.attr("d", line) // 11. Calls the line generator 
+				.attr("stroke", "url(#blue-gradient)")
+				.lower()
+				var newDAttribute = `${document.getElementById("graph-line-gradient").getAttribute('d')} L290 360 L-110 360`
+			document.getElementById("graph-line-gradient").setAttribute("d", newDAttribute)
 
 			var dot = [dataset[3]]
 			svg.selectAll(".dot")
@@ -170,6 +195,12 @@ export default {
 				.attr("cy", function(d) { return yScale(d.y) })
 				.attr("r", 5)
 				.style('visibility', 'hidden')
+			const graphDot = document.getElementById('graph-dot');
+			const graphDotPositionY = graphDot && Number(graphDot.attributes.cy.value);
+			console.log('THE POSITION:', `${Math.floor(graphDotPositionY) + 50}px`);
+			console.log('DOT D:<', graphDot);
+			document.getElementById('dot').style.setProperty('--graphLineCenterY', `${Math.floor(graphDotPositionY) + 50}px`);
+				// --graphLineCenterY
 		},
 		setFingerPrintStartingState() {
 			const fingerPrintGroup = document.querySelectorAll('#fill-fprint .fprint-path');
@@ -226,10 +257,33 @@ export default {
 			if (!this.isfingerPrintFillAnimationComplete && !(this.fillDirection === 'backwards' && this.fingerPrintOffSetRatio === 1)) {
 				window.requestAnimationFrame(this.fillFingerPrint);
 			} else if (this.isfingerPrintFillAnimationComplete) {
-				document.getElementById('dot').classList.add('in-view');
+				document.getElementById('dot').classList.add('slide-up-down-animation');
+				document.getElementById('dot').addEventListener('animationend', this.finishMovingDotAndLineToGraphAnimation)
+				// document.getElementById('dot').classList.add('in-view');  *_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*
+				//a transition delay allows the text to dissappear right when the dot crosses the text moving up
+				document.querySelector('#login-text p').classList.add('hidden')
+				document.querySelector('#my-name p').classList.add('hidden')
+				//right when the tet is hidden is when the particles should explode
+				document.querySelector('#login-text p').addEventListener('transitionend', this.explodeLoginParticles)
+				document.querySelector('#my-name p').addEventListener('transitionend', this.explodeNameParticles)
+
 				this.transform();
 				document.getElementById('starting-fprint').style.visibility = 'hidden';
 				window.requestAnimationFrame(this.removeFingerPrintPaths);
+			}
+		},
+		explodeLoginParticles() {	
+			document.getElementById('login-particle-container').style.visibility = 'visible';
+			let collection = document.querySelectorAll('#login-particle-container .particle')
+			for (let el of collection) {
+				el.classList.add('explode');
+			}
+		},
+		explodeNameParticles() {
+			document.getElementById('name-particle-container').style.visibility = 'visible';
+			let collection = document.querySelectorAll('#name-particle-container .particle')
+			for (let el of collection) {
+				el.classList.add('explode');
 			}
 		},
 		removeFingerPrintPaths(timestamp) {
@@ -256,7 +310,6 @@ export default {
 			if (!this.hasFingerPrintRemoveCompleted) window.requestAnimationFrame(this.removeFingerPrintPaths);
 		},
 		transform() {
-			console.log('transform called??');
 			document.getElementById('demo__elastic-path').classList.add('solid-stroke');
 			this.fingerPrintToStraightLineAnimation = new TimelineLite();
 			this.fingerPrintToStraightLineAnimation.to('#demo__elastic-path', 0.3, {
@@ -266,31 +319,27 @@ export default {
 				morphSVG: '#straight-path',
 				ease: Elastic.easeOut.config(1.5, 0.3)
 			}).eventCallback('onComplete', ()=> {
-				document.getElementById('dot').classList.add('land-on-line');
-				document.getElementById('dot').addEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
+				// document.getElementById('dot').classList.add('slide-to-line-animation');
+				// document.getElementById('dot').addEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
 			})
 		},
 		finishMovingDotAndLineToGraphAnimation() {
 			this.fingerPrintToGraphLineAnimation = new TimelineLite();
-			const graphDot = document.getElementById('graph-dot');
-			const graphDotPositionY = graphDot && Number(graphDot.attributes.cy.value);
+			// const graphDot = document.getElementById('graph-dot');
+			// const graphDotPositionY = graphDot && Number(graphDot.attributes.cy.value);
 			if (this.shouldMorphIntoGraphLine) {
 				this.shouldMorphIntoGraphLine = false;
 				console.log('adding follwo line bend class');
 				document.getElementById('dot').classList.add('follow-line-bend');
-				setTimeout(() => {
-					document.getElementById('dot').style.transition = 'transform 1s linear';
-					document.getElementById('dot').style.transform = `translateY(${graphDotPositionY + 50}px)`
-				},490);
+				console.log(getComputedStyle(document.getElementById('dot')).getPropertyValue('--graphLineCenterY'));
+				// document.getElementById('dot').style.transition = 'transform 0.5s linear';
+				// document.getElementById('dot').style.transform = `translateY(${graphDotPositionY + 50}px)`
 				this.fingerPrintToGraphLineAnimation.to('#demo__elastic-path', 0.5, {
-					delay: 0,
-					morphSVG: '#arc-to-bottom',
-					ease: Power0.easeNone
-				}).to('#demo__elastic-path', 1, {
 					delay: 0,
 					morphSVG: '#graph-line',
 					ease: Power0.easeNone
 				}).eventCallback('onComplete', ()=> {
+					document.getElementById("graph-line-gradient").classList.add('in-view');
 					document.removeEventListener('mousedown', this.triggerFillForwards)
 					document.removeEventListener('mouseup', this.setFillDirection)
 					document.getElementById('dot').removeEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
@@ -300,12 +349,6 @@ export default {
 		},
 		tirggerFillForwards() {
 			// console.log();
-			let collection = document.getElementsByClassName('particle')
-			console.log('collection', collection);
-			for (let el of collection) {
-				console.log('el', el);
-				el.classList.add('explode');
-			}
 			this.fillDirection = 'forwards';
 			if (!this.isfingerPrintFillAnimationComplete) window.requestAnimationFrame(this.fillFingerPrint);
 		},
@@ -320,16 +363,31 @@ export default {
 			this.hasFingerPrintRemoveCompleted = false;
 			this.shouldMorphIntoGraphLine = true;
 			this.fingerPrintResetAnimation = new TimelineLite();
+			document.querySelector('#login-text p').removeEventListener('transitionend', this.explodeLoginParticles)
+			document.querySelector('#my-name p').removeEventListener('transitionend', this.explodeNameParticles)
 			this.fingerPrintResetAnimation.to('#demo__elastic-path', 0.1, {morphSVG: '#elastic-starting'}).eventCallback('onComplete', ()=> {
 				console.log('wtf, c allback on the reset though');
 				this.fingerPrintResetAnimation = null
 			});
+			let collection = document.querySelectorAll('#login-particle-container .particle')
+			for (let el of collection) {
+				console.log('particles/?', el);
+				el.classList.remove('explode');
+			}
+			let collection2 = document.querySelectorAll('#name-particle-container .particle')
+			for (let el of collection2) {
+				el.classList.remove('explode');
+			}
+			document.querySelector('#login-text p').classList.remove('hidden')
+			document.querySelector('#my-name p').classList.remove('hidden')
 			document.getElementById('starting-fprint').style.visibility = 'initial';
 			document.getElementById('graph').remove();
 			document.getElementById('dot').classList.remove('in-view');
 			document.getElementById('demo__elastic-path').classList.remove('solid-stroke');
 			document.getElementById('dot').classList.remove('land-on-line');
 			document.getElementById('dot').classList.remove('follow-line-bend');
+			document.getElementById('login-particle-container').style.visibility = 'hidden';
+			document.getElementById('name-particle-container').style.visibility = 'hidden';
 			document.getElementById('dot').style = null;
 			document.removeEventListener('click', this.reset)
 			setTimeout(()=>{
@@ -351,6 +409,40 @@ export default {
 }
 $font: Muli, sans-serif;
 
+ @mixin particle() {
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	opacity: 1;
+	transition: all 2.5s ease;
+	position: absolute;
+	top: 50%;
+
+	@for $i from 1 through 30 {
+		&:nth-child(#{$i}) {
+			left: random(80) + 7 + %;
+			@if random(100) > 50 {
+				background-color: limegreen;
+			}
+			@else {
+				background-color: #7885ff;
+			}
+		}
+		&.explode:nth-child(#{$i}) {
+			$upDown: 0;
+			@if random(100) > 50 {
+				$upDown: -1;
+			}
+			@else {
+				$upDown: 1;
+			}
+			transform: translate3d((random(110) - 55) * 1 + px, (random(35) * $upDown) + px, 0);
+			opacity: 0;
+		}
+	}
+ }
+
+
 #keyframe-example-three {
 	padding: 0;
 	display: flex;
@@ -368,6 +460,25 @@ $font: Muli, sans-serif;
         	font-family: $font;
     	    font-size: 16px;
 	        z-index: 100;
+			position: relative;
+			p {
+				visibility: visible;
+				transition: all 0s linear;
+				transition-delay: 0.35s;
+				&.hidden {
+					visibility: hidden;
+				}
+			}
+			#name-particle-container {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				visibility: hidden;
+				.particle {
+					@include particle();
+				}
+			}
       	}
       	#login-text {
         	margin: 20px auto 10px auto;
@@ -376,37 +487,24 @@ $font: Muli, sans-serif;
         	font-size: 16px;
         	z-index: 100;
 			position: relative;
-			.particle {
-				// @mixin particle($sweep, $time) {
-				width: 3px;
-				height: 3px;
-				border-radius: 50%;
-				background-color: white;
-				opacity: 1;
-				transition: all 5s ease;
-				position: absolute;
-				will-change: transform;
-				
-				//phones can't handle the particles very well :(
-				// @media (max-width: 400px) {
-				// 	display: none;
-				// }
-
-				@for $i from 1 through 30 {
-					&:nth-child(#{$i}) {
-						left: (random(100) - 100 / 2) * 1 + px;
-						@if random(100) > 50 {
-							background-color: red;
-						}
-						@else {
-							background-color: orange;
-						}
-					}
-					&.explode:nth-child(#{$i}) {
-						transform: translate3d((random(110) - 55) * 1 + px, random(35) * 1 + px, 0);
-					}
+			p {
+				visibility: visible;
+				transition: all 0s linear;
+				transition-delay: 0.2s;
+				&.hidden {
+					visibility: hidden;
 				}
 			}
+			#login-particle-container {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				visibility: hidden;
+				.particle {
+					@include particle();
+				}
+			}			
 		}
     }
   
@@ -473,29 +571,60 @@ $font: Muli, sans-serif;
       stroke: #00ffd7;
       stroke-width: 3;
     }
+	#graph-line-gradient {
+		fill: url("#blue-gradient");
+		stroke: none;
+		transition: opacity 0.25s linear;
+		opacity: 0;
+		&.in-view {
+			opacity: 1;
+		}
+	}
     #graph-dot {
       fill: #fff;
       stroke: #fff;
     }
     #dot {
-      opacity: 0;
-      fill: white;
-      stroke: rgba(255,255,255,0.5);
-      stroke-width: 4px;
-      transition: opacity 1s, transform 1.2s;
-      transform: translateY(250px);
-      &.in-view {
-        transform: translateY(-20px);
-        opacity: 1;
-      }
-      &.land-on-line {
-        transition: transform 0.6s ease-in;
-        transform: translateY(200px);
-      }
-      &.follow-line-bend {
-        transition: transform 0.5s linear;
-        transform: translateY(215px);
-      }
+		opacity: 0;
+		fill: white;
+		stroke: rgba(255,255,255,0.5);
+		stroke-width: 4px;
+		transform: translateY(250px);
+		transition: opacity 1s, transform 1.2s;
+		animation-iteration-count: 1;
+		animation-direction: normal;
+		animation-fill-mode: forwards;
+		animation-timing-function: linear;
+		animation-delay: 0s;
+		--graphLineCenterY: 0px;
+	  	@keyframes dotAnimation-slideUp {
+			0% { transform: translateY(250px); opacity: 0; }
+			15% { opacity: 1; }
+		  	30% { opacity: 1; transform: translateY(-20px); }
+			70% { opacity: 1; transform: translateY(-20px); }
+			100% {
+				opacity: 1;
+				transform: translateY(200px);
+			}
+	  	}
+		@keyframes dotAnimation-followLineBend {
+			0% {
+				opacity: 1;
+				transform: translateY(200px);
+			}
+			100% {
+				transform: translateY(var(--graphLineCenterY));
+				opacity: 1;
+			}
+		}
+		&.slide-up-down-animation {
+			animation-duration: 2s;
+			animation-name: dotAnimation-slideUp;
+		}
+		&.follow-line-bend {
+			animation-duration: 0.5s;
+			animation-name: dotAnimation-followLineBend;
+		}
     }
   }
 }
