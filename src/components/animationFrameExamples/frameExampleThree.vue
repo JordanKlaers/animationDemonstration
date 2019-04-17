@@ -103,14 +103,13 @@ export default {
 			fingerPrintPaths: [],
 			fingerPrintEndingPaths: [],
 			fingerPrintPathIncrement: this.getPropertyIncrement(0, 1, 500),
-			removeFingerPrintPathIncrement: this.getPropertyIncrement(0, 1, 150),
-			removeFingerPrintEndingPathIncrement: this.getPropertyIncrement(0, 1, 300),
+			removeFingerPrintPathIncrement: this.getPropertyIncrement(0, 1, 100),
+			removeFingerPrintEndingPathIncrement: this.getPropertyIncrement(0, 1, 200),
 			fingerPrintOffSetRatio: 1,
 			fingerPrintEndingPathOffSetRatio: 0,
 			fillDirection: 'forwards',
 			previousRAFTimeStamp: 0 ,
 			isfingerPrintFillAnimationComplete: false,
-			hasFingerPrintRemoveCompleted: false,
 			shouldMorphIntoGraphLine: true,
 			fingerPrintToStraightLineAnimation: null,
 			fingerPrintToGraphLineAnimation: null,
@@ -220,10 +219,6 @@ export default {
 
 		},
 		setFingerPrintStartingState() {
-			// const fingerPrintGroup = document.querySelectorAll('#fill-fprint .fprint-path');
-			// const endingPathsGroup = document.querySelectorAll('#fill-fprint .ending-path');
-			// const paths = [].slice.call(fingerPrintGroup);
-			// const endingPaths = [].slice.call(endingPathsGroup);
 			this.elements.fingerPrintGroup.forEach(path => {
 				let pathLength = path.getTotalLength();
 				this.fingerPrintPaths.push({
@@ -320,11 +315,10 @@ export default {
 				this.fingerPrintEndingPaths.forEach(pathObj => {
 					pathObj.path.style.strokeDashoffset = -pathObj.pathLength * (this.fingerPrintEndingPathOffSetRatio) + (pathObj.dashLength * Math.abs(this.fingerPrintEndingPathOffSetRatio - 1));
 				});
-				if (this.fingerPrintOffSetRatio === 1 && this.fingerPrintEndingPathOffSetRatio === 1) {
-					this.hasFingerPrintRemoveCompleted = true;
-				}
 			}
-			if (!this.hasFingerPrintRemoveCompleted) window.requestAnimationFrame(this.removeFingerPrintPaths);
+			if (this.fingerPrintOffSetRatio !== 1 || this.fingerPrintEndingPathOffSetRatio !== 1) {
+				window.requestAnimationFrame(this.removeFingerPrintPaths);
+			}
 		},
 		transformFingerPrintLine() {
 			this.elements.elasticPath.classList.add('solid-stroke');
@@ -370,7 +364,6 @@ export default {
 			this.fillDirection = 'forwards';
 			this.previousRAFTimeStamp = 0;
 			this.isfingerPrintFillAnimationComplete = false;
-			this.hasFingerPrintRemoveCompleted = false;
 			this.shouldMorphIntoGraphLine = true;
 			
 			//removes eventlisteners so that we can removes css properties without triggering callbacks
@@ -379,7 +372,7 @@ export default {
 
 			//creates and  calls animation to reset the finger print line
 			this.fingerPrintResetAnimation = new TimelineLite();
-			this.fingerPrintResetAnimation.to('#elastic-path', 0.1, {morphSVG: '#elastic-starting'}).eventCallback('onComplete', ()=> {
+			this.fingerPrintResetAnimation.to('#elastic-path', 0, {morphSVG: '#elastic-starting'}).eventCallback('onComplete', ()=> {
 				this.fingerPrintResetAnimation = null
 			});
 			//removes all the particles as they are created randomlly each time
@@ -392,7 +385,7 @@ export default {
 			//removes the graph line gradient as it gets created from this.createGraphLine()
 			document.getElementById('fill-fprint').removeChild(this.elements.graphLineGradient)
 
-			
+
 			this.elements.loginText.classList.remove('hidden')
 			this.elements.nameText.classList.remove('hidden')
 			this.elements.startingFingerPrint.classList.remove('hidden')
@@ -430,7 +423,7 @@ $font: Muli, sans-serif;
 	height: 3px;
 	border-radius: 50%;
 	opacity: 1;
-	transition: all 2.5s ease;
+	transition: all 1.5s ease;
 	position: absolute;
 	top: 50%;
 
@@ -491,7 +484,7 @@ $font: Muli, sans-serif;
 			p {
 				visibility: visible;
 				transition: all 0s linear;
-				transition-delay: 0.35s;
+				transition-delay: 0.25s;
 				&.hidden {
 					visibility: hidden;
 				}
@@ -517,7 +510,7 @@ $font: Muli, sans-serif;
 			p {
 				visibility: visible;
 				transition: all 0s linear;
-				transition-delay: 0.2s;
+				transition-delay: 0.1s;
 				&.hidden {
 					visibility: hidden;
 				}
@@ -627,7 +620,7 @@ $font: Muli, sans-serif;
 	  	@keyframes dotAnimation-slideUp {
 			0% { transform: translateY(250px); opacity: 0; }
 			15% { opacity: 1; }
-		  	30% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
+		  	24% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
 			70% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
 			100% {
 				opacity: 1;
@@ -645,7 +638,7 @@ $font: Muli, sans-serif;
 			}
 		}
 		&.slide-up-down-animation {
-			animation-duration: 2s;
+			animation-duration: 1.4s;
 			animation-name: dotAnimation-slideUp;
 		}
 		&.follow-line-bend {
