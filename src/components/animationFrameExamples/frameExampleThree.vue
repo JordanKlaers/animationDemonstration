@@ -2,6 +2,15 @@
 	<div class="animation-example-frame" id="keyframe-example-three">
 		<span class="title">Example Three</span>
 		<div class="text-container">
+			<div id="month-container">
+				<div class="month-dot"></div>
+				<div class="month-dot"></div>
+				<div class="month-dot">
+					<div id="month-text"> {{month || 'month'}} </div>
+				</div>
+				<div class="month-dot"></div>
+				<div class="month-dot"></div>
+			</div>
 			<div id="my-name">
 				<p ref="name-text">Jordan Klaers</p>
 				<div id="name-particle-container" ref="name-particle-container"></div>
@@ -11,6 +20,17 @@
 			<div id="login-text">
 				<p ref="login-text">Login with FingerPrint ID<p>
 				<div id="login-particle-container" ref="login-particle-container"></div>
+			</div>
+		</div>
+		<div class="text-container">
+			<div id="month-container">
+				<div class="month-dot"></div>
+				<div class="month-dot"></div>
+				<div class="month-dot">
+					<div id="month-text"> {{month || 'day'}} </div>
+				</div>
+				<div class="month-dot"></div>
+				<div class="month-dot"></div>
 			</div>
 		</div>
 		<svg class="svg-element" viewBox="0 0 400 400">
@@ -458,7 +478,6 @@ $font: Muli, sans-serif;
 	padding: 0;
 	display: flex;
     flex-wrap: wrap;
-	align-content: flex-start;
 	.hidden {
 		visibility: hidden !important;
 	}
@@ -470,10 +489,16 @@ $font: Muli, sans-serif;
 	}
     .text-container {
        // visibility: hidden;
-	    z-index: 10;
+		position:relative;
+		z-index: 10;
     	color: white;
     	display: flex;
-      	flex-basis: 400px;//0%;
+      	width:100%;
+		#month-container, #day-container {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+		}
       	#my-name {
         	margin: 20px auto 90px auto;
         	color: white;
