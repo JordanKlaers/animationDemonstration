@@ -1,37 +1,31 @@
 <template>
 	<div class="animation-example-frame" id="keyframe-example-three">
 		<span class="title">Example Three</span>
-		<div class="text-container">
-			<div id="month-container">
-				<div class="month-dot"></div>
-				<div class="month-dot"></div>
-				<div class="month-dot">
-					<div id="month-text"> {{month || 'month'}} </div>
-				</div>
-				<div class="month-dot"></div>
-				<div class="month-dot"></div>
-			</div>
-			<div id="my-name">
-				<p ref="name-text">Jordan Klaers</p>
-				<div id="name-particle-container" ref="name-particle-container"></div>
-			</div>
+		<div id="my-name">
+			<p ref="name-text">Jordan Klaers</p>
+			<div id="name-particle-container" ref="name-particle-container"></div>
 		</div>
-		<div class="text-container">
-			<div id="login-text">
-				<p ref="login-text">Login with FingerPrint ID<p>
-				<div id="login-particle-container" ref="login-particle-container"></div>
-			</div>
+		<div id="login-text">
+			<p ref="login-text">Login with FingerPrint ID<p>
+			<div id="login-particle-container" ref="login-particle-container"></div>
 		</div>
-		<div class="text-container">
-			<div id="month-container">
-				<div class="month-dot"></div>
-				<div class="month-dot"></div>
-				<div class="month-dot">
-					<div id="month-text"> {{month || 'day'}} </div>
-				</div>
-				<div class="month-dot"></div>
-				<div class="month-dot"></div>
+		<div id="month-container">
+			<div class="month-dot"></div>
+			<div class="month-dot"></div>
+			<div class="month-dot">
+				<div id="month-text"> {{month || 'month'}} </div>
 			</div>
+			<div class="month-dot"></div>
+			<div class="month-dot"></div>
+		</div>
+		<div id="day-container">
+			<div class="day-dot"></div>
+			<div class="day-dot"></div>
+			<div class="day-dot">
+				<div id="day-text"> {{day || 'day'}} </div>
+			</div>
+			<div class="day-dot"></div>
+			<div class="day-dot"></div>
 		</div>
 		<svg class="svg-element" viewBox="0 0 400 400">
 			<defs>
@@ -477,6 +471,7 @@ $font: Muli, sans-serif;
 	$finger-print-group-X-translate: -110;
 	padding: 0;
 	display: flex;
+	position: relative;
     flex-wrap: wrap;
 	.hidden {
 		visibility: hidden !important;
@@ -487,191 +482,224 @@ $font: Muli, sans-serif;
 	.no-transition {
 		transition-property: none !important;
 	}
-    .text-container {
-       // visibility: hidden;
-		position:relative;
-		z-index: 10;
-    	color: white;
-    	display: flex;
-      	width:100%;
-		#month-container, #day-container {
+	#month-container {
+		top: 15px;
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 2;
+		$month-container-width: 200px;
+		.month-dot {
+			height: 1px;
+			width: 1px;
+			border: 2px solid white;
+			border-radius: 50%;
 			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-		}
-      	#my-name {
-        	margin: 20px auto 90px auto;
-        	color: white;
-        	font-family: $font;
-    	    font-size: 16px;
-	        z-index: 100;
-			position: relative;
-			p {
-				visibility: visible;
-				transition: all 0s linear;
-				transition-delay: 0.25s;
-				&.hidden {
-					visibility: hidden;
-				}
-			}
-			#name-particle-container {
+			&:nth-of-type(1) { transform: translateX($month-container-width * -0.5); opacity: 0.6; }
+			&:nth-of-type(2) { transform: translateX($month-container-width * -0.25); opacity: 0.75; }
+			&:nth-of-type(3) { width: 10px; height: 10px; transform: translateY(-50%)}
+			&:nth-of-type(4) { transform: translateX($month-container-width * 0.25); opacity: 0.75; }
+			&:nth-of-type(5) { transform: translateX($month-container-width * 0.5); opacity: 0.6; }
+			#month-text {
 				position: absolute;
-				width: 100%;
-				height: 100%;
-				top: 0;
-				visibility: hidden;
-				.particle {
-					@include particle();
-				}
+				left: 50%;
+				transform: translateX(-50%);
+				color: white;
+				top: 15px;
 			}
-      	}
-      	#login-text {
-        	margin: 20px auto 10px auto;
-        	color: white;
-        	font-family: $font;
-        	font-size: 16px;
-        	z-index: 100;
-			position: relative;
-			p {
-				visibility: visible;
-				transition: all 0s linear;
-				transition-delay: 0.1s;
-				&.hidden {
-					visibility: hidden;
-				}
-			}
-			#login-particle-container {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				top: 0;
-				visibility: hidden;
-				.particle {
-					@include particle();
-				}
-			}			
-		}
-    }
-  
-  .svg-element {
-    // visibility:hidden;
-    z-index: 1;
-    background-color: #003a52;
-    border:1px solid white;
-    width: 400px;
-    height: 400px;
-    overflow: hidden;
-    position:absolute;
-    #starting-fprint {
-      .fprint-path {
-        stroke-width: 2.5px;
-        stroke-linecap: round;
-        fill: none;
-        stroke: white;
-        transition: opacity 0.5s ease;
-        will-change: stroke-dashoffset, stroke-dasharray;
-        transform: translateZ(0) translate(5 0);
-      }
-    }
-    #fill-fprint {
-      .fprint-path {
-        stroke-width: 2.5px;
-        stroke-linecap: round;
-        fill: none;
-        stroke: white;
-        transition: opacity 0.5s ease;
-        will-change: stroke-dashoffset, stroke-dasharray;
-        transform: translateZ(0) translate(5 0);
-      }
-      .ending-path {
-        fill: none;
-        stroke-width: 2.5px;
-        stroke: gray;
-        stroke-linecap: round;
-        will-change: stroke-dashoffset, stroke-dasharray, opacity;
-        transform: translateZ(0);
-      }
-      .solid-stroke {
-        stroke-dashoffset: 0;
-        stroke-dasharray: none !important;
-      }
-      .fprint-path, .ending-path {
-        stroke: #00ffd7;
-        &.light-purple {
-          stroke: #7885ff;
-        }
-      }
-    }
-    
-    .hidden-path {
-      visibility:hidden;
-      stroke-linecap: round;
-      stroke-width: 2.5px;
-      fill: none;
-      stroke: white;
-    }
-    #graph-line {
-    //   visibility: none;
-      fill: none;
-      stroke: #00ffd7;
-      stroke-width: 3;
-    }
-	#graph-line-gradient {
-		fill: url("#blue-gradient");
-		stroke: none;
-		transition: opacity 0.25s linear;
-		opacity: 0;
-		&.in-view {
-			opacity: 1;
 		}
 	}
-    #graph-dot {
-      fill: #fff;
-      stroke: #fff;
-    }
-    #dot {
-		opacity: 0;
-		fill: white;
-		stroke: rgba(255,255,255,0.5);
-		stroke-width: 4px;
-		transform: translateY(250px);
-		transition: opacity 1s, transform 1.2s;
-		animation-iteration-count: 1;
-		animation-direction: normal;
-		animation-fill-mode: forwards;
-		animation-timing-function: linear;
-		animation-delay: 0s;
-		--graphLineCenterY: 0px;
-	  	@keyframes dotAnimation-slideUp {
-			0% { transform: translateY(250px); opacity: 0; }
-			15% { opacity: 1; }
-		  	24% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
-			70% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
-			100% {
-				opacity: 1;
-				transform: translateY(200px + $finger-print-group-Y-translate);
+	#day-container {
+		position: absolute;
+		left: 50%;
+		bottom: 15px;
+		transform: translateX(-50%);
+		z-index: 2;
+		.day-dot {
+			position: absolute;
+			height: 1px;
+			width: 1px;
+			border: 2px solid white;
+			border-radius: 50%;
+		}
+	}
+    #my-name {
+       	// margin: 20px auto 0px auto;
+       	color: white;
+       	font-family: $font;
+        font-size: 16px;
+	    z-index: 100;
+		position: absolute;
+		top: 15px;
+		left: 50%;
+		transform: translateX(-50%);
+		p {
+			visibility: visible;
+			transition: all 0s linear;
+			transition-delay: 0.25s;
+			&.hidden {
+				visibility: hidden;
 			}
-	  	}
-		@keyframes dotAnimation-followLineBend {
-			0% {
-				opacity: 1;
-				transform: translateY(200px + $finger-print-group-Y-translate);
+		}
+		#name-particle-container {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			visibility: hidden;
+			.particle {
+				@include particle();
 			}
-			100% {
-				transform: translateY(var(--graphLineCenterY));
+		}
+	}
+    #login-text {
+		color: white;
+		font-family: $font;
+		font-size: 16px;
+		z-index: 100;
+		position: absolute;
+		top: 130px;
+		left: 50%;
+		height: 50px;
+		transform: translateX(-50%);
+		p {
+			visibility: visible;
+			transition: all 0s linear;
+			transition-delay: 0.1s;
+			&.hidden {
+				visibility: hidden;
+			}
+		}
+		#login-particle-container {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			visibility: hidden;
+			.particle {
+				@include particle();
+			}
+		}			
+	}
+  
+	.svg-element {
+		// visibility:hidden;
+		z-index: 1;
+		background-color: #003a52;
+		border:1px solid white;
+		width: 400px;
+		height: 400px;
+		overflow: hidden;
+		position:absolute;
+		#starting-fprint {
+      		.fprint-path {
+        		stroke-width: 2.5px;
+        		stroke-linecap: round;
+        		fill: none;
+        		stroke: white;
+				transition: opacity 0.5s ease;
+				will-change: stroke-dashoffset, stroke-dasharray;
+				transform: translateZ(0) translate(5 0);
+			}
+    	}
+    	#fill-fprint {
+      		.fprint-path {
+				stroke-width: 2.5px;
+				stroke-linecap: round;
+				fill: none;
+				stroke: white;
+				transition: opacity 0.5s ease;
+				will-change: stroke-dashoffset, stroke-dasharray;
+				transform: translateZ(0) translate(5 0);
+			}
+			.ending-path {
+				fill: none;
+				stroke-width: 2.5px;
+				stroke: gray;
+				stroke-linecap: round;
+				will-change: stroke-dashoffset, stroke-dasharray, opacity;
+				transform: translateZ(0);
+			}
+      		.solid-stroke {
+				stroke-dashoffset: 0;
+				stroke-dasharray: none !important;
+			}
+			.fprint-path, .ending-path {
+				stroke: #00ffd7;
+				&.light-purple {
+				stroke: #7885ff;
+				}
+			}
+    	}
+    	.hidden-path {
+      		visibility:hidden;
+      		stroke-linecap: round;
+      		stroke-width: 2.5px;
+      		fill: none;
+      		stroke: white;
+    	}
+    	#graph-line {
+    //   visibility: none;
+      		fill: none;
+      		stroke: #00ffd7;
+      		stroke-width: 3;
+    	}
+		#graph-line-gradient {
+			fill: url("#blue-gradient");
+			stroke: none;
+			transition: opacity 0.25s linear;
+			opacity: 0;
+			&.in-view {
 				opacity: 1;
 			}
 		}
-		&.slide-up-down-animation {
-			animation-duration: 1.4s;
-			animation-name: dotAnimation-slideUp;
+    	#graph-dot {
+      		fill: #fff;
+      		stroke: #fff;
+    	}
+		#dot {
+			opacity: 0;
+			fill: white;
+			stroke: rgba(255,255,255,0.5);
+			stroke-width: 4px;
+			transform: translateY(250px);
+			transition: opacity 1s, transform 1.2s;
+			animation-iteration-count: 1;
+			animation-direction: normal;
+			animation-fill-mode: forwards;
+			animation-timing-function: linear;
+			animation-delay: 0s;
+			--graphLineCenterY: 0px;
+			@keyframes dotAnimation-slideUp {
+				0% { transform: translateY(250px); opacity: 0; }
+				15% { opacity: 1; }
+				24% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
+				70% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
+				100% {
+					opacity: 1;
+					transform: translateY(200px + $finger-print-group-Y-translate);
+				}
+			}
+			@keyframes dotAnimation-followLineBend {
+				0% {
+					opacity: 1;
+					transform: translateY(200px + $finger-print-group-Y-translate);
+				}
+				100% {
+					transform: translateY(var(--graphLineCenterY));
+					opacity: 1;
+				}
+			}
+			&.slide-up-down-animation {
+				animation-duration: 1.4s;
+				animation-name: dotAnimation-slideUp;
+			}
+			&.follow-line-bend {
+				animation-duration: 0.5s;
+				animation-name: dotAnimation-followLineBend;
+			}
 		}
-		&.follow-line-bend {
-			animation-duration: 0.5s;
-			animation-name: dotAnimation-followLineBend;
-		}
-    }
-  }
+	}
 }
 
 </style>
