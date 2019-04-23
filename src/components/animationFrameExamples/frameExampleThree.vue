@@ -2,31 +2,13 @@
 	<div class="animation-example-frame" id="keyframe-example-three">
 		<span class="title">Example Three</span>
 		<div id="my-name">
-			<p ref="name-text">Jordan Klaers</p>
-			<div id="name-particle-container" ref="name-particle-container"></div>
+			
 		</div>
 		<div id="login-text">
-			<p ref="login-text">Login with FingerPrint ID<p>
-			<div id="login-particle-container" ref="login-particle-container"></div>
+			
 		</div>
-		<div id="month-container">
-			<div class="month-dot"></div>
-			<div class="month-dot"></div>
-			<div class="month-dot">
-				<div id="month-text"> {{month || 'month'}} </div>
-			</div>
-			<div class="month-dot"></div>
-			<div class="month-dot"></div>
-		</div>
-		<div id="day-container">
-			<div class="day-dot"></div>
-			<div class="day-dot"></div>
-			<div class="day-dot">
-				<div id="day-text"> {{day || 'day'}} </div>
-			</div>
-			<div class="day-dot"></div>
-			<div class="day-dot"></div>
-		</div>
+		<div id="month-container"></div>
+		<div id="day-container"></div>
 		<svg class="svg-element" viewBox="0 0 400 400">
 			<defs>
 				<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -91,7 +73,7 @@
 				<path class="ending-path light-purple" d="M91.8,248c0,0-3.9,6.4-6.2,9.2c-3.8,4.5-7.9,8.9-11.2,13.8c-1.9,2.8-4.4,6.4-3.7,10c0.9,5.2,4.7,12.5,9.7,14.7c5.2,2.2,15.9-4.7,13.1-10.8c-1.4-3-6.3-7.9-10-7.2c-1,0.2-1.8,1-2,2"/>
 				<path class="ending-path light-purple" d="M114.8,239.4c-2.7,6.1-8.3,12.8-7.8,19.8c0.3,4.6,3.8,7.4,7.8,9.1c8.9,3.8,19.7,0.4,28.6-1.3c8.8-1.7,19.7-3.2,23.7,6.7c2.8,6.8,6.1,14.7,4.4,22.2"/>
 				<path class="ending-path" transform="translate(3, 4)" d="M129.9,224.2c-0.4,7.5-3.1,18,0.7,25c2.8,5.1,14.3,6.3,19.5,7.4c3.7,0.7,8.7,2.2,12-0.5c6.7-5.4,11.1-13.7,14.1-21.6c3.1-8-4.4-12.8-11.1-14.5c-5-1.3-19.1-0.7-21-6.7c-0.9-2.8,1.8-5.9,3.4-7.9"/>
-				<circle id="dot" ref="dot" cx="90" cy="0" r="6"/>
+				<!-- <circle id="dot" ref="dot" cx="90" cy="0" r="6"/> -->
 				<!-- transform="translate(5 0)"  -->
 			</g>
 			<path class="hidden-path" id='arc-to-top' transform="translate(110 50)" d="M-110,150c150-20.5,200-20.5,400,0"/>
@@ -138,8 +120,13 @@ export default {
 				fingerPrintGroup: null,
 				endingPathsGroup: null,
 				dot: null,
+				dayDots: null,
+				monthDots: null,
 				loginText: null,
 				nameText: null,
+				nameContainer: null,
+				loginContainer: null,
+				graphLine: null,
 				startingFingerPrint: null
 			}
 		}
@@ -153,27 +140,103 @@ export default {
 		let loginDiv = document.getElementById('login-particle-container')
 		let nameDiv = document.getElementById('name-particle-container')
 		this.setElementsVariables()
-		this.addParticlesBehindText()
+		this.createIntroText()
+		this.createDayMonthDots()
 		this.createGraphLine()
 		this.setFingerPrintStartingState()
 		document.addEventListener('mousedown', this.tirggerFillForwards)
 		document.addEventListener('mouseup', this.setFillDirection)
 	},
+	computed: {
+		day() {
+			let days = []
+			for (let i = -3; i < 4; i ++) {
+				let date = new Date()
+				date.setDate(date.getDate() + i)
+				days.push(date.getDate())
+			}
+			return days
+		},
+		month() {
+			const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+			return monthNames[new Date().getMonth()];
+		}
+	},
 	methods: {
 		setElementsVariables() {
 			const els = this.elements
-			els.loginParticleContainer = this.$refs['login-particle-container']
-			els.nameParticlecontainer = this.$refs['name-particle-container']
 			//el.graphLineGradient is set in this.createGraphLine() (called after this function in the mounted hook)
 			//el.loginParticles is set in this.addParticlesBehindText() (called after this function in the mounted hook)
 			//el.nameParticles is set in this.addParticlesBehindText() (called after this function in the mounted hook)
+			els.nameContainer = document.getElementById('my-name')
+			els.loginContainer = document.getElementById('login-text')
+			els.dayContainer = document.getElementById('day-container')
+			els.monthContainer = document.getElementById('month-container')
 			els.elasticPath = this.$refs['elastic-path']
 			els.fingerPrintGroup = [].slice.call(document.querySelectorAll('#fill-fprint .fprint-path'))
 			els.endingPathsGroup = [].slice.call(document.querySelectorAll('#fill-fprint .ending-path'))
-			els.dot = this.$refs['dot']
-			els.loginText = this.$refs['login-text']
-			els.nameText = this.$refs['name-text']
+			// els.dot = this.$refs['dot']
 			els.startingFingerPrint = this.$refs['starting-finger-print']
+		},
+		createDayMonthDots() {
+			let dayContainer = document.getElementById('day-container');
+			let monthContainer = document.getElementById('month-container');
+			for (let i = 0; i <= 6; i++ ) {
+				let dayDiv = document.createElement('div');
+				dayDiv.classList.add('day-dot')
+				if (i === 3) {
+					let innerDayDiv = document.createElement('div');
+					innerDayDiv.setAttribute('id', 'day-text')
+					innerDayDiv.innerHTML = `${this.day[i]}`
+					dayDiv.appendChild(innerDayDiv)
+				} else {
+					dayDiv.innerHTML = `${this.day[i]}`;
+				}
+				dayContainer.appendChild(dayDiv)
+			}
+			for (let i = 0; i <= 4; i++ ) {
+				let monthDiv = document.createElement('div');
+				monthDiv.classList.add('month-dot')
+				if (i === 2) {
+					let innerMonthDiv = document.createElement('div');
+					innerMonthDiv.setAttribute('id', 'month-text')
+					innerMonthDiv.innerHTML = `${this.month}`
+					monthDiv.appendChild(innerMonthDiv)
+				}
+				monthContainer.appendChild(monthDiv)
+			}
+			this.elements.dayDots = [].slice.call(document.querySelectorAll('#day-container .day-dot'))
+			this.elements.monthDots = [].slice.call(document.querySelectorAll('#month-container .month-dot'))
+		},
+		createIntroText() {
+			
+			let nameText = document.createElement('p')
+			nameText.setAttribute('ref', 'nane-text')
+			nameText.innerHTML= 'Jordan Klaers'
+
+			let nameParticlecontainer = document.createElement('div')
+			nameParticlecontainer.setAttribute('id', 'name-particle-container')
+			nameParticlecontainer.setAttribute('ref', 'name-particle-container')
+
+			let loginText = document.createElement('p')
+			loginText.setAttribute('ref', 'login-text')
+			loginText.innerHTML = 'Login with FingerPrint ID'
+
+			let loginParticlecontainer = document.createElement('div')
+			loginParticlecontainer.setAttribute('id', 'login-particle-container')
+			loginParticlecontainer.setAttribute('ref', 'login-particle-container')
+
+			this.elements.nameContainer.appendChild(nameText)
+			this.elements.nameContainer.appendChild(nameParticlecontainer)
+
+			this.elements.loginContainer.appendChild(loginText)
+			this.elements.loginContainer.appendChild(loginParticlecontainer)
+
+			this.elements.loginParticleContainer = loginParticlecontainer
+			this.elements.nameParticlecontainer = nameParticlecontainer
+			this.elements.loginText = loginText
+			this.elements.nameText = nameText
+			this.addParticlesBehindText();
 		},
 		addParticlesBehindText() {
 			for (let i = 0; i < 30; i++) {
@@ -207,12 +270,19 @@ export default {
 				.x(function(d, i) { return xScale(i); })
 				.y(function(d) { return yScale(d.y); })
 				.curve(d3.curveCatmullRom.alpha(0.5))
-			var dataset = d3.range(n).map(function(d) { return {"y": d3.randomUniform(0.3)() + 0.35 } })
+			//d3.randomUniform(0.4) can be thought of as "return a number between 0 and 0.4" which is relative to the height of the SVG. 
+			//That leaves 60% of the height of the svg where a value would NOT full in. 
+			//Add 0.2 to the value so that 20% of the space is below the graph line and 40% above
+			var dataset = d3.range(n).map(function(d) { return {"y": d3.randomUniform(0.4)() + 0.2 } })
+			//force the first and last value to align vertically with the center of the SVG height
 			dataset[0].y = 0.5
 			dataset[n-1].y = 0.5
 
 			var svg = d3.select("svg #fill-fprint").append("g").attr("id", "graph")
-			svg.append("path")
+
+				// <circle id="dot" ref="dot" cx="90" cy="0" r="6"/>
+
+			d3.select("svg #fill-fprint").insert('path', '#fill-fprint path:last-of-type')
 				.datum(dataset) // 10. Binds data to the line 
 				.attr("id", "graph-line") // Assign a class for styling 
 				.attr("d", line) // 11. Calls the line generator 
@@ -224,7 +294,16 @@ export default {
 				.attr("stroke", "url(#blue-gradient)")
 				.lower()
 			
+			d3.select("svg #fill-fprint").insert('circle', '#fill-fprint path:last-of-type')
+				.attr('id', 'dot')
+				.attr('ref', 'dot')
+				.attr('cx', '90')
+				.attr('cy', '0')
+				.attr('r', '6')
+
+			this.elements.dot = document.getElementById('dot')
 			this.elements.graphLineGradient = document.getElementById("graph-line-gradient")
+			this.elements.graphLine = document.getElementById('graph-line')
 			var newDAttribute = `${this.elements.graphLineGradient.getAttribute('d')} L290 360 L-110 360`
 			this.elements.graphLineGradient.setAttribute("d", newDAttribute)
 
@@ -284,6 +363,8 @@ export default {
 				window.requestAnimationFrame(this.fillFingerPrint);
 			} else if (this.isfingerPrintFillAnimationComplete) {
 
+				// the month dots/text will come into view in the middle of the dot animation
+				this.animateMonthDots();
 				this.elements.dot.classList.add('slide-up-down-animation');
 				this.elements.dot.addEventListener('animationend', this.finishMovingDotAndLineToGraphAnimation)
 				//a transition delay allows the text to dissappear right when the dot crosses the text moving up
@@ -345,8 +426,21 @@ export default {
 				ease: Elastic.easeOut.config(1.5, 0.3)
 			})
 		},
+		animateMonthDots() {
+			for (let el of this.elements.monthDots) {
+				el.classList.add('in-view')
+				el.classList.add('animate')
+			}
+		},
+		animateDayDots() {
+			for (let el of this.elements.dayDots) {
+				el.classList.add('in-view')
+				el.classList.add('animate')
+			}
+		},
 		finishMovingDotAndLineToGraphAnimation() {
-			console.log('finishingdot animation alled');
+			this.animateDayDots()
+
 			this.fingerPrintToGraphLineAnimation = new TimelineLite();
 			if (this.shouldMorphIntoGraphLine) {
 				this.shouldMorphIntoGraphLine = false;
@@ -356,6 +450,8 @@ export default {
 					morphSVG: '#graph-line',
 					ease: Power0.easeNone
 				}).eventCallback('onComplete', ()=> {
+					this.elements.elasticPath.classList.add('hidden')
+					this.elements.graphLine.classList.add('visible')
 					this.elements.graphLineGradient.classList.add('in-view');
 					document.removeEventListener('mousedown', this.triggerFillForwards)
 					document.removeEventListener('mouseup', this.setFillDirection)
@@ -396,29 +492,42 @@ export default {
 			while (this.elements.nameParticlecontainer.firstChild) {
 				this.elements.nameParticlecontainer.removeChild(this.elements.nameParticlecontainer.firstChild)
 			}
+
+			while (this.elements.dayContainer.firstChild) {
+				this.elements.dayContainer.removeChild(this.elements.dayContainer.firstChild)
+			}
+			while (this.elements.monthContainer.firstChild) {
+				this.elements.monthContainer.removeChild(this.elements.monthContainer.firstChild)
+			}
+
+			while (this.elements.loginContainer.firstChild) {
+				this.elements.loginContainer.removeChild(this.elements.loginContainer.firstChild)
+			}
+			while (this.elements.nameContainer.firstChild) {
+				this.elements.nameContainer.removeChild(this.elements.nameContainer.firstChild)
+			}
+
+			//removes the graph line as it gets created from this.createGraphLine()
+			this.elements.graphLine.parentNode.removeChild(this.elements.graphLine);
 			//removes the graph line gradient as it gets created from this.createGraphLine()
 			document.getElementById('fill-fprint').removeChild(this.elements.graphLineGradient)
 
-
-			this.elements.loginText.classList.remove('hidden')
-			this.elements.nameText.classList.remove('hidden')
 			this.elements.startingFingerPrint.classList.remove('hidden')
 			document.getElementById('graph').remove()			
-			this.elements.dot.classList.remove('in-view')
 			this.elements.elasticPath.classList.remove('solid-stroke')
-			this.elements.dot.classList.remove('land-on-line')
-			this.elements.dot.classList.remove('follow-line-bend')
-			this.elements.dot.classList.remove('slide-up-down-animation')
-			this.elements.loginParticleContainer.classList.remove('visible')
-			this.elements.nameParticlecontainer.classList.remove('visible')
+
+			document.getElementById('fill-fprint').removeChild(this.elements.dot)
+			this.elements.elasticPath.classList.remove('hidden')
 			document.removeEventListener('click', this.reset)
+			
 			setTimeout(()=>{
 				document.addEventListener('mouseup', this.setFillDirection)
 				document.addEventListener('mousedown', this.tirggerFillForwards)
-				this.addParticlesBehindText()
+				this.createIntroText()
 				this.createGraphLine()
+				this.createDayMonthDots()
 				this.setFingerPrintStartingState()
-			},1000)
+			},10)
 		}
 	}
 };
@@ -488,39 +597,70 @@ $font: Muli, sans-serif;
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 2;
-		$month-container-width: 200px;
+		$month-container-width: 150px;
 		.month-dot {
 			height: 1px;
 			width: 1px;
 			border: 2px solid white;
 			border-radius: 50%;
 			position: absolute;
-			&:nth-of-type(1) { transform: translateX($month-container-width * -0.5); opacity: 0.6; }
-			&:nth-of-type(2) { transform: translateX($month-container-width * -0.25); opacity: 0.75; }
+			opacity: 0;
+			transition: opacity 0.3s 1.1s, transform 1s 1.1s;
+			&.in-view {
+				opacity: 1;
+			}
 			&:nth-of-type(3) { width: 10px; height: 10px; transform: translateY(-50%)}
-			&:nth-of-type(4) { transform: translateX($month-container-width * 0.25); opacity: 0.75; }
-			&:nth-of-type(5) { transform: translateX($month-container-width * 0.5); opacity: 0.6; }
+			&.animate {
+				&:nth-of-type(1) { transform: translateX($month-container-width * -0.5); opacity: 0.6; }
+				&:nth-of-type(2) { transform: translateX($month-container-width * -0.25); opacity: 0.75; }
+				&:nth-of-type(4) { transform: translateX($month-container-width * 0.25); opacity: 0.75; }
+				&:nth-of-type(5) { transform: translateX($month-container-width * 0.5); opacity: 0.6; }
+			}
 			#month-text {
 				position: absolute;
 				left: 50%;
 				transform: translateX(-50%);
 				color: white;
-				top: 15px;
+				top: 10px;
 			}
 		}
 	}
 	#day-container {
 		position: absolute;
 		left: 50%;
-		bottom: 15px;
+		bottom: 35px;
 		transform: translateX(-50%);
 		z-index: 2;
+		$day-container-width: 130px;
 		.day-dot {
+			$dot-dim: 25px;
 			position: absolute;
-			height: 1px;
-			width: 1px;
-			border: 2px solid white;
-			border-radius: 50%;
+			height: $dot-dim;
+			width: $dot-dim;
+			font-size: 12px;
+			line-height: $dot-dim;
+			color: white;
+			text-align: center;
+			opacity: 0;
+			transition: opacity 0.3s 0s, transform 0.85s 0s;
+			&.in-view {
+				opacity: 1;
+			}
+			&.animate {
+				&:nth-of-type(1) { transform: translateX(($day-container-width * -0.99) - ($dot-dim/2)); }
+				&:nth-of-type(2) { transform: translateX(($day-container-width * -0.66) - ($dot-dim/2)); }
+				&:nth-of-type(3) { transform: translateX(($day-container-width * -0.33) - ($dot-dim/2)); }
+
+				&:nth-of-type(5) { transform: translateX(($day-container-width * 0.33) - ($dot-dim/2)); }
+				&:nth-of-type(6) { transform: translateX(($day-container-width * 0.66) - ($dot-dim/2)); }
+				&:nth-of-type(7) { transform: translateX(($day-container-width * 0.99) - ($dot-dim/2)); }
+			}
+			&:nth-of-type(4) {
+				transform: translateX(-$dot-dim/2);
+				border: 2px solid white;
+				border-radius: 50%;
+				line-height: $dot-dim - 4;
+			}
 		}
 	}
     #my-name {
@@ -639,9 +779,8 @@ $font: Muli, sans-serif;
       		stroke: white;
     	}
     	#graph-line {
-    //   visibility: none;
       		fill: none;
-      		stroke: #00ffd7;
+      		stroke: #7885ff;
       		stroke-width: 3;
     	}
 		#graph-line-gradient {
