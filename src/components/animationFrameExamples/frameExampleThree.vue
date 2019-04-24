@@ -9,7 +9,7 @@
 		</div>
 		<div id="month-container"></div>
 		<div id="day-container"></div>
-		<svg class="svg-element" viewBox="0 0 400 400">
+		<svg viewBox="0 0 400 400">
 			<defs>
 				<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
 					<stop offset="0%"   stop-color="#8742cc"/>
@@ -374,11 +374,18 @@ export default {
 					pathObj.path.style.strokeDashoffset = pathObj.pathLength * this.fingerPrintOffSetRatio;
 				});
 			}
-			//if the ratio has no reached 0% (fully filled in finger print), than continue to call this function to updated the paths offset values
-			if (this.fingerPrintOffSetRatio !== 0) {
+			//if the ratio has not reached 0% (fully filled in finger print) and greater then 1 (the starting state, not filled in), than continue to call this function to updated the paths offset values
+			if (this.fingerPrintOffSetRatio !== 0 && this.fingerPrintOffSetRatio < 1) {
+				console.log('recurise call to fill');
 				window.requestAnimationFrame(this.fillFingerPrint);
-			} else {
+			//when this.fingerPrintOffSetRatio is 0 the paths have been filled
+			} else if (this.fingerPrintOffSetRatio === 0) {
 				//the finger print is fully filled in
+
+				//remove the event listeners that trigger the fill animation as it has compelted
+				console.log('removing the event listeners');
+				document.removeEventListener('mousedown', this.triggerFillForwards)
+				document.removeEventListener('mouseup', this.setFillDirection)
 
 				//right when the fingerprint has been filled, the main dot animation is applied
 				//slide-up-down-animation will bring the dot into view, moving it off the screen at the top, then move back down to land on the line.
@@ -411,29 +418,6 @@ export default {
 				window.requestAnimationFrame(this.removeFingerPrintPaths);
 			}
 		},
-		animateMonthDots() {
-			for (let el of this.elements.monthDots) {
-				//the month dots at the top have a different transition time for the opacity property as well as the transform property to produce the spreading affect when they come into view
-				el.classList.add('animate')
-			}
-		},
-		transformFingerPrintLine() {
-			//adds a solid stroke the the finger print path that gets morphed.
-			//the reason is that the length of the path changes in the morph and the dash array would  be seen on the updated path
-			this.elements.elasticPath.classList.add('solid-stroke');
-			//saving the animation to a variable so it can be cleared
-			this.fingerPrintToStraightLineAnimation = new TimelineLite();
-			//uses morphSVG from greenstock animation platform to morph the SVG path
-			//the target is the element with the id '#elastic-path'
-			//morph to the element with the id '#arc-to-top' over 0.3 seconds with no delay, then morph to the straight horizontal path over 1 second with no delay, with a timing funciton to make it "bounce"
-			this.fingerPrintToStraightLineAnimation.to('#elastic-path', 0.3, {
-				delay: 0,
-				morphSVG: '#arc-to-top',
-			}).to('#elastic-path', 1, {
-				morphSVG: '#straight-path',
-				ease: Elastic.easeOut.config(1.5, 0.3)
-			})
-		},
 		removeFingerPrintPaths(timestamp) {
 			//this function is called right when the finger print paths have filled. This animation using Request Animation Frame is being called during the same time that the main dot is animating Up then down onto the line.
 			// during the same time that the finger print paths is morphing into the horizontal line
@@ -464,48 +448,80 @@ export default {
 					pathObj.path.style.strokeDashoffset = -pathObj.pathLength * (this.fingerPrintEndingPathOffSetRatio) + (pathObj.dashLength * Math.abs(this.fingerPrintEndingPathOffSetRatio - 1));
 				});
 			}
+			//continue calling untill both the finger print, and the scatter/ending paths dash array have been removed (the empty space between the dash is whats "visible" on the paths)
 			if (this.fingerPrintOffSetRatio !== 1 || this.fingerPrintEndingPathOffSetRatio !== 1) {
 				window.requestAnimationFrame(this.removeFingerPrintPaths);
 			}
 		},
+		animateMonthDots() {
+			for (let el of this.elements.monthDots) {
+				//the month dots at the top have a different transition time for the opacity property as well as the transform property to produce the spreading affect when they come into view
+				el.classList.add('animate')
+			}
+		},
 		explodeLoginParticles() {	
+			//the container is initall hidden, to hide the dots as the start full visible.
 			this.elements.loginParticleContainer.classList.add('visible');
-			// let collection = document.querySelectorAll('#login-particle-container .particle')
 			for (let el of this.elements.loginParticles) {
+				//adds the explode class which applies the 3d transform to move the dots, and fade them out
 				el.classList.add('explode');
 			}
 		},
 		explodeNameParticles() {
+			//the container is initall hidden, to hide the dots as the start full visible.
 			this.elements.nameParticlecontainer.classList.add('visible');
-			// let collection = document.querySelectorAll('#name-particle-container .particle')
 			for (let el of this.elements.nameParticles) {
+				//adds the explode class which applies the 3d transform to move the dots, and fade them out
 				el.classList.add('explode');
 			}
 		},
-		animateDayDots() {
-			for (let el of this.elements.dayDots) {
-				el.classList.add('in-view')
-				el.classList.add('animate')
-			}
+		transformFingerPrintLine() {
+			//adds a solid stroke the the finger print path that gets morphed.
+			//the reason is that the length of the path changes in the morph and the dash array would  be seen on the updated path
+			this.elements.elasticPath.classList.add('solid-stroke');
+			//saving the animation to a variable so it can be cleared
+			this.fingerPrintToStraightLineAnimation = new TimelineLite();
+			//uses morphSVG from greenstock animation platform to morph the SVG path
+			//the target is the element with the id '#elastic-path'
+			//morph to the element with the id '#arc-to-top' over 0.3 seconds with no delay, then morph to the straight horizontal path over 1 second with no delay, with a timing funciton to make it "bounce"
+			this.fingerPrintToStraightLineAnimation.to('#elastic-path', 0.3, {
+				delay: 0,
+				morphSVG: '#arc-to-top',
+			}).to('#elastic-path', 1, {
+				morphSVG: '#straight-path',
+				ease: Elastic.easeOut.config(1.5, 0.3)
+			})
 		},
 		finishMovingDotAndLineToGraphAnimation() {
+			//when the dot lands on the horizontal line, begin the aniamtion to have the day dots/text at the bottom 
 			this.animateDayDots()
+			//save the morphSVG animation to a timeline so it can be cleared
 			this.fingerPrintToGraphLineAnimation = new TimelineLite();
+			//at the same time the line (that was once a finger print path) morphs from the horizontal line to the graph line,
+			//then the main dot should also move the Y value of the center of the graph line.
+			//both the morph and second half of the dot animation happen at the same speed (same animation length of time) to make it appear that the dot is "attached" on the line
 			this.elements.dot.classList.add('follow-line-bend');
 			this.fingerPrintToGraphLineAnimation.to('#elastic-path', 0.5, {
 				delay: 0,
 				morphSVG: '#graph-line',
 				ease: Power0.easeNone
 			}).eventCallback('onComplete', ()=> {
+				//when the morph has completed hide the elastic path and show the graph line path. They should technically be in the exact same position and the exact same path but sometimes the end result
+				//of the morph does not match and preduces a visual error
 				this.elements.elasticPath.classList.add('hidden')
 				this.elements.graphLine.classList.add('visible')
+				//at this time, trigger the animation for the gradient below the graph line to fade into view
 				this.elements.graphLineGradient.classList.add('in-view');
-				document.removeEventListener('mousedown', this.triggerFillForwards)
-				document.removeEventListener('mouseup', this.setFillDirection)
+
 				this.elements.dot.removeEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
 				this.elements.dot.removeEventListener('animationend', this.finishMovingDotAndLineToGraphAnimation)
 				document.addEventListener('click', this.reset)
 			});
+		},
+		animateDayDots() {
+			for (let el of this.elements.dayDots) {
+				el.classList.add('animate')
+			}
 		},
 		triggerFillForwards() {
 			this.fillDirection = 'forwards';
@@ -585,6 +601,8 @@ export default {
 $font: Muli, sans-serif;
 
 @mixin particle() {
+	//when this mixin is used, the element(s) of the selector its added to gain these properties
+	//which produces a small dot
 	width: 3px;
 	height: 3px;
 	border-radius: 50%;
@@ -595,7 +613,9 @@ $font: Muli, sans-serif;
 
 	@for $i from 1 through 30 {
 		&:nth-child(#{$i}) {
-			left: random(80) + 7 + %;
+			//within the parent container (which is the particle container) the dots are randomly positioned within the middle 80% of the parent container
+			left: random(80) + 10 + %;
+			//randomly set with a 50% change to be green or purple
 			@if random(100) > 50 {
 				background-color: limegreen;
 			}
@@ -603,14 +623,17 @@ $font: Muli, sans-serif;
 				background-color: #7885ff;
 			}
 		}
+		//when the explode class is added to the same element that matches the selctor that the mixin is used on, these properties will be applied
 		&.explode:nth-child(#{$i}) {
 			$upDown: 0;
+			//set value with 50% for wether or not the dot move up or down
 			@if random(100) > 50 {
 				$upDown: -1;
 			}
 			@else {
 				$upDown: 1;
 			}
+			//translate the dot X value bweteen -55 to 55 and the Y value between -35 and 35, and Z value does not change
 			transform: translate3d((random(110) - 55) * 1 + px, (random(35) * $upDown) + px, 0);
 			opacity: 0;
 		}
@@ -619,27 +642,29 @@ $font: Muli, sans-serif;
 
 
 #keyframe-example-three {
+	//there is a translation applied on the svg G elements that needs to be accounted for in some positioning values.
+	//saving those values as variables to use in calculations
 	$finger-print-group-Y-translate: -50;
 	$finger-print-group-X-translate: -110;
 	padding: 0;
-	display: flex;
 	position: relative;
-    flex-wrap: wrap;
+	//default hidden class can be applied to any element to hide it
 	.hidden {
 		visibility: hidden !important;
 	}
+	//default visiblity class can be applied to any element to hide it
 	.visible {
 		visibility: visible !important;
 	}
-	.no-transition {
-		transition-property: none !important;
-	}
+	//the month container has the text of the month and the 5 dots
 	#month-container {
 		top: 15px;
 		position: absolute;
+		//the left and transform are a techinque for centering an element horizontally. flex with maring auto woudl be an alternative but is not preferred.
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 2;
+		//this variable is used to calculate how far the dots are transformed on the X axis
 		$month-container-width: 150px;
 		.month-dot {
 			height: 1px;
@@ -648,8 +673,16 @@ $font: Muli, sans-serif;
 			border-radius: 50%;
 			position: absolute;
 			opacity: 0;
+			//this vertically centers the dots
 			transform: translateY(-50%);
+			//the opacity and transform have different animation times but the same delay.
+			//the delay is 1.1 seconds so that the animation being at the point when the main animated dot crosses the Y value of the location of these elements
 			transition: opacity 0.3s 1.1s, transform 1s 1.1s;
+
+			user-select: none;
+			//the center dot has a hollow center
+			&:nth-of-type(3) { width: 10px; height: 10px; }
+
 			&.animate {
 				&:nth-of-type(1) { transform: translateX($month-container-width * -0.5); opacity: 0.6; }
 				&:nth-of-type(2) { transform: translateX($month-container-width * -0.25); opacity: 0.75; }
@@ -657,6 +690,7 @@ $font: Muli, sans-serif;
 				&:nth-of-type(4) { transform: translateX($month-container-width * 0.25); opacity: 0.75; }
 				&:nth-of-type(5) { transform: translateX($month-container-width * 0.5); opacity: 0.6; }
 			}
+			// the month text is positioned in the center below the cente dot
 			#month-text {
 				position: absolute;
 				left: 50%;
@@ -668,10 +702,12 @@ $font: Muli, sans-serif;
 	}
 	#day-container {
 		position: absolute;
-		left: 50%;
 		bottom: 35px;
+		//the left and transform are a techinque for centering an element horizontally. flex with maring auto woudl be an alternative but is not preferred.
+		left: 50%;
 		transform: translateX(-50%);
 		z-index: 2;
+		//this variable is used to calculate how far the dots are transformed on the X axis
 		$day-container-width: 130px;
 		.day-dot {
 			$dot-dim: 25px;
@@ -684,46 +720,52 @@ $font: Muli, sans-serif;
 			text-align: center;
 			opacity: 0;
 			transition: opacity 0.3s 0s, transform 0.85s 0s;
-			&.in-view {
-				opacity: 1;
-			}
-			&.animate {
-				&:nth-of-type(1) { transform: translateX(($day-container-width * -0.99) - ($dot-dim/2)); }
-				&:nth-of-type(2) { transform: translateX(($day-container-width * -0.66) - ($dot-dim/2)); }
-				&:nth-of-type(3) { transform: translateX(($day-container-width * -0.33) - ($dot-dim/2)); }
+			//prevents the dots from being highlighted due to the click+hold event listener
+			user-select: none;
 
-				&:nth-of-type(5) { transform: translateX(($day-container-width * 0.33) - ($dot-dim/2)); }
-				&:nth-of-type(6) { transform: translateX(($day-container-width * 0.66) - ($dot-dim/2)); }
-				&:nth-of-type(7) { transform: translateX(($day-container-width * 0.99) - ($dot-dim/2)); }
+			&.animate {
+				//translate all 99% of the way to the left and center itself
+				&:nth-of-type(1) { transform: translateX(($day-container-width * -0.99) - ($dot-dim/2)); opacity: 1; }
+				//translate all 66% of the way to the left and center itself
+				&:nth-of-type(2) { transform: translateX(($day-container-width * -0.66) - ($dot-dim/2)); opacity: 1; }
+				//translate all 33% of the way to the left and center itself
+				&:nth-of-type(3) { transform: translateX(($day-container-width * -0.33) - ($dot-dim/2)); opacity: 1; }
+				&:nth-of-type(4) {
+					transform: translateX(-$dot-dim/2);
+					//the center dot hase a border radius and is center positioned
+					border: 2px solid white;
+					border-radius: 50%;
+					opacity: 1;
+					//line height equal to the div height minus the border-top + border-bottom value to center position the text
+					line-height: $dot-dim - 4;
+				}
+				&:nth-of-type(5) { transform: translateX(($day-container-width * 0.33) - ($dot-dim/2)); opacity: 1; }
+				&:nth-of-type(6) { transform: translateX(($day-container-width * 0.66) - ($dot-dim/2)); opacity: 1; }
+				&:nth-of-type(7) { transform: translateX(($day-container-width * 0.99) - ($dot-dim/2)); opacity: 1; }
 			}
-			&:nth-of-type(4) {
-				transform: translateX(-$dot-dim/2);
-				border: 2px solid white;
-				border-radius: 50%;
-				line-height: $dot-dim - 4;
-			}
+				
 		}
 	}
-    #my-name {
-       	// margin: 20px auto 0px auto;
-       	color: white;
-       	font-family: $font;
-        font-size: 16px;
-	    z-index: 100;
+	#my-name {
+		color: white;
+		font-family: $font;
+		font-size: 16px;
+		z-index: 100;
 		position: absolute;
 		top: 15px;
+		//center positioning technique
 		left: 50%;
 		transform: translateX(-50%);
 		p {
 			visibility: visible;
+			//this transition property exists because when the hidden class is applied, there is a delay so that it becomes hidden at the moment the main animation dot crosses the text as it moves upwards
+			//the javascript callback for the completion of this animation also triggers the login particle animation, by adding the .explode call in the callback as well as making the particle container visible
 			transition: all 0s linear;
 			transition-delay: 0.25s;
-			&.hidden {
-				visibility: hidden;
-			}
 		}
 		#name-particle-container {
 			position: absolute;
+			//the container that holds the particles is equal in size to the text so that the particles positionings are relative to the dimensions of the text they appear to be exploding from
 			width: 100%;
 			height: 100%;
 			top: 0;
@@ -744,11 +786,15 @@ $font: Muli, sans-serif;
 		height: 50px;
 		transform: translateX(-50%);
 		p {
+			//this transition property exists because when the hidden class is applied, there is a delay so that it becomes hidden at the moment the main animation dot crosses the text as it moves upwards
+			//this delay is less than the name text transition delay because this text is lower/ the main animation dot crosses it first
+			//the javascript callback for the completion of this animation also triggers the login particle animation, by adding the .explode call in the callback as well as making the particle container visible
 			transition: all 0s linear;
 			transition-delay: 0.2s;
 		}
 		#login-particle-container {
 			position: absolute;
+			//the container that holds the particles is equal in size to the text so that the particles positionings are relative to the dimensions of the text they appear to be exploding from
 			width: 100%;
 			height: 100%;
 			top: 0;
@@ -759,8 +805,7 @@ $font: Muli, sans-serif;
 		}			
 	}
   
-	.svg-element {
-		// visibility:hidden;
+	svg {
 		z-index: 1;
 		background-color: #003a52;
 		border:1px solid white;
@@ -769,14 +814,13 @@ $font: Muli, sans-serif;
 		overflow: hidden;
 		position:absolute;
 		#starting-fprint {
+			//the white fingerprint that is not animated
       		.fprint-path {
+				//the paths match the fill finger print but are white
         		stroke-width: 2.5px;
         		stroke-linecap: round;
         		fill: none;
         		stroke: white;
-				transition: opacity 0.5s ease;
-				will-change: stroke-dashoffset, stroke-dasharray;
-				transform: translateZ(0) translate(5 0);
 			}
     	}
     	#fill-fprint {
@@ -785,9 +829,9 @@ $font: Muli, sans-serif;
 				stroke-linecap: round;
 				fill: none;
 				stroke: white;
-				transition: opacity 0.5s ease;
+				// transition: opacity 0.5s ease;
 				will-change: stroke-dashoffset, stroke-dasharray;
-				transform: translateZ(0) translate(5 0);
+				// transform: translateZ(0) translate(5 0);
 			}
 			.ending-path {
 				fill: none;
@@ -795,7 +839,7 @@ $font: Muli, sans-serif;
 				stroke: gray;
 				stroke-linecap: round;
 				will-change: stroke-dashoffset, stroke-dasharray, opacity;
-				transform: translateZ(0);
+				// transform: translateZ(0);
 			}
       		.solid-stroke {
 				stroke-dashoffset: 0;
