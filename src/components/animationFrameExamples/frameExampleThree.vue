@@ -25,7 +25,6 @@
 			</div>
 		</div>
 		<button @click="reset" v-if="shouldRenderElements" ref="reset-button" class="top-right-aligned">reset</button>
-		<!-- <div id="reset" ref="reset-button"  v-on:click="reset"></div> -->
 		<svg viewBox="0 0 400 400">
 			<defs>
 				<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
