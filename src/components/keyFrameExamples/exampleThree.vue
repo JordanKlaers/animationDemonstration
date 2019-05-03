@@ -1,6 +1,6 @@
 <template>
 	<div class="animation-example-frame" id="keyframe-example-three">
-		<span class="title">Example three</span>
+		<span class="title">KeyFrame Example three</span>
 		<div class="spinner-container">
 			<div></div>
 			<div></div>
@@ -12,17 +12,7 @@
 
 <script>
 export default {
-	name: 'keyframeExmapleThree',
-	components: {
-	},
-	data() {
-		return {
-		}
-	},
-	mounted() {
-	},
-	methods: {
-	}
+	name: 'keyframeExmapleThree'
 };
 </script>
 <style lang='scss'>
@@ -35,15 +25,17 @@ export default {
 #keyframe-example-three {
 	display: flex;
 	.spinner-container {
+		$container-dim: 120px;
 		margin: auto;
-		width:120px;
-		height:120px;
+		width: $container-dim;
+		height: $container-dim;
 		position: relative;
 		div {
+			//positioned to allow for overlap/ setup the start of the animation
 			position: absolute;
-			width: 40px;
-			height: 40px;
-			border-radius: 20px;
+			width: $container-dim/3;
+			height: $container-dim/3;
+			border-radius: 50%;
 			animation-name: spin;
 			animation-duration: 2s;
 			animation-timing-function: ease-in-out;

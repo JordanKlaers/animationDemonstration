@@ -1,14 +1,31 @@
 <template>
-	<div class="animation-example-frame" id="keyframe-example-three">
-		<span class="title">Example Three</span>
-		<div id="my-name">
-			
+	<div class="animation-example-frame" id="request-animation-frame-example-three" ref="container-frame">
+		<span class="title">Request Animation Frame <br> Example Three</span>
+		<div id="my-name" ref='my-name' v-if="shouldRenderElements">
+			<p ref="name-text">Jordan Klaers</p>
+			<div id="name-particle-container" ref="name-particle-container">
+				<div class="particle" ref="name-particle" v-for="(val, index) in 30" :key="index"></div>
+			</div>
 		</div>
-		<div id="login-text">
-			
+		<div id="login-text" ref='login-text' v-if="shouldRenderElements">
+			<p ref="login-text">Login with FingerPrint ID</p>
+			<div id="login-particle-container" ref="login-particle-container">
+				<div class="particle" ref="login-particle" v-for="(val, index) in 30" :key="index"></div>
+			</div>
 		</div>
-		<div id="month-container"></div>
-		<div id="day-container"></div>
+		<div id="month-container" ref='month-container' v-if="shouldRenderElements">
+			<div v-for="(number, index) in 5" ref="month-dot" :key="`month-${number}`" class="month-dot">
+				<div v-if="index === 2" id="month-text">{{month}}</div>
+			</div>
+		</div>
+		<div id="day-container" ref='day-container' v-if="shouldRenderElements">
+			<div v-for="(dayNumber, index) in day" ref="day-dot" :key="dayNumber" class="day-dot">
+				{{index !== 3 ? dayNumber : ''}}
+				<div v-if="index === 3" id="day-text">{{dayNumber}}</div>
+			</div>
+		</div>
+		<button @click="reset" v-if="shouldRenderElements" ref="reset-button" class="top-right-aligned">reset</button>
+		<!-- <div id="reset" ref="reset-button"  v-on:click="reset"></div> -->
 		<svg viewBox="0 0 400 400">
 			<defs>
 				<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -66,13 +83,15 @@
 				<path class="fprint-path remove-backwards" d="M72,244.9c0,0,8.8-9.9,9.9-15.7"/>
 				<path class="fprint-path light-purple remove-backwards" d="M84.5,223c0.3-2.6,0.5-5.2,0.7-7.8c0.1-2.1,0.2-4.6-0.1-6.8c-0.3-2.2-1.1-4.3-0.9-6.5c0.5-4.4,7.2-6.9,10.1-3.1 c1.7,2.2,1.7,5.3,1.9,7.9c0.4,3.8,0.3,7.6,0,11.4c-1,10.8-5.4,21-11.5,29.9"/>
 				<path class="fprint-path red remove-backwards" d="M90,201.2c0,0,4.6,28.1-11.4,45.2"/>
-				<path class="fprint-path light-purple" id="elastic-path" ref="elastic-path" d="M67.3,219C65,188.1,78,180.1,92.7,180.3c18.3,2,23.7,18.3,20,46.7"/>
+				<path class="fprint-path light-purple" :id="`elastic-path-${_uid}`" ref="elastic-path" d="M67.3,219C65,188.1,78,180.1,92.7,180.3c18.3,2,23.7,18.3,20,46.7"/>
 				<path class="ending-path" d="M48.4,220c-5.8,4.2-6.9,11.5-7.6,18.1c-0.8,6.7-0.9,14.9-9.9,12.4c-9.1-2.5-14.7-5.4-19.9-13.4c-3.4-5.2-0.4-12.3,2.3-17.2c3.2-5.9,6.8-13,14.5-11.6c3.5,0.6,7.7,3.4,4.5,7.1"/>
 				<path class="ending-path light-purple" d="M57.3,235.2c-14.4,9.4-10.3,19.4-17.8,21.1c-5.5,1.3-8.4-7.8-13.8-4.2c-2.6,1.7-5.7,7.7-4.6,10.9c0.7,2,4.1,2,5.8,2.4c3,0.7,8.4,3,7.6,7.2c-0.6,3-5,5.3-2.4,8.7c1.8,2.2,4.7,1.1,6.9,0.3c11.7-4.3,14.5,0.8,16.5,0.9"/>
 				<path class="ending-path" d="M79,246c-1.8,2.4-4.9,2.9-7.6,3.2c-2.7,0.3-5.8-0.8-7.7,1.6c-2.9,3.3,0.7,8.2-1.2,12c-1.5,2.8-4.5,2.4-6.9,1.3c-10.1-4.7-33.2-17.5-38.1-2.5c-1.1,3.4-1.9,7.5-1.3,11c0.6,4,5.6,7.9,7.7,2.3c0.8-2.1,3.1-8.6-1-8.9"/>
 				<path class="ending-path light-purple" d="M91.8,248c0,0-3.9,6.4-6.2,9.2c-3.8,4.5-7.9,8.9-11.2,13.8c-1.9,2.8-4.4,6.4-3.7,10c0.9,5.2,4.7,12.5,9.7,14.7c5.2,2.2,15.9-4.7,13.1-10.8c-1.4-3-6.3-7.9-10-7.2c-1,0.2-1.8,1-2,2"/>
 				<path class="ending-path light-purple" d="M114.8,239.4c-2.7,6.1-8.3,12.8-7.8,19.8c0.3,4.6,3.8,7.4,7.8,9.1c8.9,3.8,19.7,0.4,28.6-1.3c8.8-1.7,19.7-3.2,23.7,6.7c2.8,6.8,6.1,14.7,4.4,22.2"/>
 				<path class="ending-path" transform="translate(3, 4)" d="M129.9,224.2c-0.4,7.5-3.1,18,0.7,25c2.8,5.1,14.3,6.3,19.5,7.4c3.7,0.7,8.7,2.2,12-0.5c6.7-5.4,11.1-13.7,14.1-21.6c3.1-8-4.4-12.8-11.1-14.5c-5-1.3-19.1-0.7-21-6.7c-0.9-2.8,1.8-5.9,3.4-7.9"/>
+				<circle cx="90" cy="0" r="6" id="dot" ref="main-dot" v-if="shouldRenderElements"></circle>
+
 			</g>
 			<path class="hidden-path" id='arc-to-top' transform="translate(110 50)" d="M-110,150c150-20.5,200-20.5,400,0"/>
 			<path class="hidden-path" id='arc-to-bottom' transform="translate(110 50)" d="M-110,150c150+20.5,200+20.5,400,0"/>
@@ -82,18 +101,15 @@
 </template>
 
 <script>
-import svg from './svg';
 import * as d3 from 'd3';
 import {TweenMax, TimelineLite} from "scripts/gsap";
 import morphSVG from "scripts/gsap/morphSVGPlugin";
 
 export default {
-	name: 'keyframeExampleThree',
-	components: {
-		'svg-component': svg
-	},
+	name: 'RequestAnimationFrameExampleThree',
 	data() {
 		return {
+			shouldRenderElements: true,
 			fingerPrintPaths: [],
 			fingerPrintEndingPaths: [],
 			fingerPrintPathIncrement: this.getPropertyIncrement(0, 1, 500),
@@ -136,15 +152,35 @@ export default {
     			setTimeout(() => cb(new Date()), 1000 / 60);
   			}
 		}
+
 		this.setElementsVariables()
-		this.createIntroText()
-		this.createDayMonthDots()
+
+		//setting the values of the fingerprint paths once in mounted, as doing it each time the animaiton is reset, 
+		//would cause the path length of the fingerprint path that morphs into the graph line to have its length = to the graph line, not the original length
+		this.elements.fingerPrintGroup.forEach(path => {
+			let pathLength = path.getTotalLength();
+			this.fingerPrintPaths.push({
+				path,
+				pathLength,
+				removeDirection: path.classList.contains('remove-backwards') ? -1 : 1
+			})
+		})
+		this.elements.endingPathsGroup.forEach(path => {
+			let pathLength = path.getTotalLength();
+			const dashLength = pathLength * 0.22;
+			this.fingerPrintEndingPaths.push({
+				path,
+				pathLength,
+				dashLength
+			})
+		})
+
 		this.createGraphLine()
 		this.setFingerPrintStartingState()
 		// these event listeners handle filling the fingerprint
-		document.addEventListener('mousedown', this.triggerFillForwards)
+		this.$refs['container-frame'].addEventListener('mousedown', this.triggerFillForwards)
 		//releasing the mouse changes the direction of the fill
-		document.addEventListener('mouseup', this.setFillDirection)
+		this.$refs['container-frame'].addEventListener('mouseup', this.setFillDirection)
 	},
 	computed: {
 		//day returns an array of the current day as well as two before and two after to be displayed in the html
@@ -167,94 +203,24 @@ export default {
 		setElementsVariables() {
 			const els = this.elements
 			//graphLineGradient is set when the graph is created in this.createGraphLine()
-			//loginParticleContainer is set when creating the login text elements in this.createIntroText()
-			//nameParticlecontainer is set when creating the login text elements in this.createIntroText()
-			//loginParticles is set when the particles are added in this.addParticlesBehindText() which is called form 
-			//nameParticles is set when the particles are added in this.addParticlesBehindText() which is called form 
+			this.elements.loginParticleContainer = this.$refs['login-particle-container']
+			this.elements.nameParticlecontainer = this.$refs['name-particle-container']
+			this.elements.loginParticles = this.$refs['login-particle']
+			this.elements.nameParticles = this.$refs['name-particle']
 			els.elasticPath = this.$refs['elastic-path']
 			els.fingerPrintGroup = [].slice.call(document.querySelectorAll('#fill-fprint .fprint-path'))
 			els.endingPathsGroup = [].slice.call(document.querySelectorAll('#fill-fprint .ending-path'))
 			//dot the main anumation dot is set in this.createGraphLine()
-			//dayDots is set in this.createDayMonthDots()
-			//monthDots is set in this.createDayMonthDots
-			//loginText is set in this.createIntroText()
-			//nameText is set in this.createIntroText()
-			els.nameContainer = document.getElementById('my-name')
-			els.loginContainer = document.getElementById('login-text')
+			this.elements.dayDots = this.$refs['day-dot']
+			this.elements.monthDots = this.$refs['month-dot']
+			this.elements.loginText = this.$refs['login-text']
+			this.elements.nameText = this.$refs['name-text']
+			els.nameContainer = this.$refs['my-name']
+			els.loginContainer = this.$refs['login-text']
 			//graphLine is set in this.createGraphLine()
 			els.startingFingerPrint = this.$refs['starting-finger-print']
-			els.dayContainer = document.getElementById('day-container')
-			els.monthContainer = document.getElementById('month-container')
-		},
-		createDayMonthDots() {
-			for (let i = 0; i <= 6; i++ ) {
-				let dayDiv = document.createElement('div');
-				dayDiv.classList.add('day-dot')
-				if (i === 3) {
-					let innerDayDiv = document.createElement('div');
-					innerDayDiv.setAttribute('id', 'day-text')
-					innerDayDiv.innerHTML = `${this.day[i]}`
-					dayDiv.appendChild(innerDayDiv)
-				} else {
-					dayDiv.innerHTML = `${this.day[i]}`;
-				}
-				this.elements.dayContainer.appendChild(dayDiv)
-			}
-			for (let i = 0; i <= 4; i++ ) {
-				let monthDiv = document.createElement('div');
-				monthDiv.classList.add('month-dot')
-				if (i === 2) {
-					let innerMonthDiv = document.createElement('div');
-					innerMonthDiv.setAttribute('id', 'month-text')
-					innerMonthDiv.innerHTML = `${this.month}`
-					monthDiv.appendChild(innerMonthDiv)
-				}
-				this.elements.monthContainer.appendChild(monthDiv)
-			}
-			this.elements.dayDots = [].slice.call(document.querySelectorAll('#day-container .day-dot'))
-			this.elements.monthDots = [].slice.call(document.querySelectorAll('#month-container .month-dot'))
-		},
-		createIntroText() {
-			
-			let nameText = document.createElement('p')
-			nameText.setAttribute('ref', 'nane-text')
-			nameText.innerHTML= 'Jordan Klaers'
-
-			let nameParticlecontainer = document.createElement('div')
-			nameParticlecontainer.setAttribute('id', 'name-particle-container')
-			nameParticlecontainer.setAttribute('ref', 'name-particle-container')
-
-			let loginText = document.createElement('p')
-			loginText.setAttribute('ref', 'login-text')
-			loginText.innerHTML = 'Login with FingerPrint ID'
-
-			let loginParticlecontainer = document.createElement('div')
-			loginParticlecontainer.setAttribute('id', 'login-particle-container')
-			loginParticlecontainer.setAttribute('ref', 'login-particle-container')
-
-			this.elements.nameContainer.appendChild(nameText)
-			this.elements.nameContainer.appendChild(nameParticlecontainer)
-
-			this.elements.loginContainer.appendChild(loginText)
-			this.elements.loginContainer.appendChild(loginParticlecontainer)
-
-			this.elements.loginParticleContainer = loginParticlecontainer
-			this.elements.nameParticlecontainer = nameParticlecontainer
-			this.elements.loginText = loginText
-			this.elements.nameText = nameText
-			this.addParticlesBehindText();
-		},
-		addParticlesBehindText() {
-			for (let i = 0; i < 30; i++) {
-				let dot = document.createElement('div')
-				dot.classList.add('particle')
-				this.elements.loginParticleContainer.appendChild(dot)
-				let dot2 = document.createElement('div')
-				dot2.classList.add('particle')
-				this.elements.nameParticlecontainer.appendChild(dot2)
-			}
-			this.elements.loginParticles = [].slice.call(document.querySelectorAll('#login-particle-container .particle'))
-			this.elements.nameParticles = [].slice.call(document.querySelectorAll('#name-particle-container .particle'))
+			els.dayContainer = this.$refs['day-container']
+			els.monthContainer = this.$refs['month-container']
 		},
 		createGraphLine() {
 			var width = 400; //should match the width and height of the SVG
@@ -285,28 +251,24 @@ export default {
 			//creates the graph line that the line in the finger print will morph into
 			d3.select("svg #fill-fprint").insert('path', '#fill-fprint path:last-of-type')
 				.datum(dataset) // 10. Binds data to the line 
-				.attr("id", "graph-line") // Assign a class for styling 
+				.attr("id", `graph-line-${this._uid}`)
+				.attr('class', 'graph-line') // Assign a class for styling 
 				.attr("d", line) // 11. Calls the line generator 
 				.style('visibility', 'hidden')
 
 			//creates a duplicate of the graph line which will have its path updates so that it can be filled with a gradient
 			var graphLineGradient = d3.select("#fill-fprint").append("path")
 				.datum(dataset) // 10. Binds data to the line 
-				.attr("id", "graph-line-gradient") // Assign a class for styling 
+				.attr("id", `graph-line-gradient-${this._uid}`) 
+				.attr('class', 'graph-line-gradient')// Assign a class for styling 
 				.attr("d", line) // 11. Calls the line generator 
 				.attr("stroke", "url(#blue-gradient)")
 				.lower()
-			//adds the main dot that gets animated to move up and down and land on the line
-			d3.select("svg #fill-fprint").insert('circle', '#fill-fprint path:last-of-type')
-				.attr('id', 'dot')
-				.attr('ref', 'dot')
-				.attr('cx', '90')
-				.attr('cy', '0')
-				.attr('r', '6')
 
-			this.elements.dot = document.getElementById('dot')
-			this.elements.graphLineGradient = document.getElementById("graph-line-gradient")
-			this.elements.graphLine = document.getElementById('graph-line')
+
+			this.elements.dot = this.$refs['main-dot']
+			this.elements.graphLineGradient = document.getElementById(`graph-line-gradient-${this._uid}`)
+			this.elements.graphLine = document.getElementById(`graph-line-${this._uid}`)
 			//updates the path for the duplicate graphline which will have its fill updated with a gradient
 			var newDAttribute = `${this.elements.graphLineGradient.getAttribute('d')} L290 360 L-110 360`
 			this.elements.graphLineGradient.setAttribute("d", newDAttribute)
@@ -317,30 +279,17 @@ export default {
 
 		},
 		setFingerPrintStartingState() {
-			this.elements.fingerPrintGroup.forEach(path => {
-				let pathLength = path.getTotalLength();
-				this.fingerPrintPaths.push({
-					path,
-					pathLength,
-					removeDirection: path.classList.contains('remove-backwards') ? -1 : 1
-				})
+			this.fingerPrintPaths.forEach(obj => {
 				//create strokedash array on each path
-				path.style.strokeDasharray = `${pathLength} ${pathLength}`;
+				obj.path.style.strokeDasharray = `${obj.pathLength} ${obj.pathLength}`;
 				//set offset of dashes for each path for inital state, so that the dashes are not seen
-				path.style.strokeDashoffset = pathLength * this.fingerPrintOffSetRatio;
+				obj.path.style.strokeDashoffset = obj.pathLength * this.fingerPrintOffSetRatio;
 			})
-			this.elements.endingPathsGroup.forEach(path => {
-				let pathLength = path.getTotalLength();
-				const dashLength = pathLength * 0.22;
-				this.fingerPrintEndingPaths.push({
-					path,
-					pathLength,
-					dashLength
-				})
+			this.fingerPrintEndingPaths.forEach(obj => {
 				//dashes are the same length of the path, with a sapce inbetween each dash just a bit greater than the length of the path
-				path.style.strokeDasharray = `${dashLength} ${pathLength + 3}`;
+				obj.path.style.strokeDasharray = `${obj.dashLength} ${obj.pathLength + 3}`;
 				//offset so the dashes are not visiblie
-				path.style.strokeDashoffset = -pathLength;
+				obj.path.style.strokeDashoffset = -obj.pathLength;
 			})
 		},
 		setFillDirection() {
@@ -376,16 +325,14 @@ export default {
 			}
 			//if the ratio has not reached 0% (fully filled in finger print) and greater then 1 (the starting state, not filled in), than continue to call this function to updated the paths offset values
 			if (this.fingerPrintOffSetRatio !== 0 && this.fingerPrintOffSetRatio < 1) {
-				console.log('recurise call to fill');
 				window.requestAnimationFrame(this.fillFingerPrint);
 			//when this.fingerPrintOffSetRatio is 0 the paths have been filled
 			} else if (this.fingerPrintOffSetRatio === 0) {
 				//the finger print is fully filled in
 
 				//remove the event listeners that trigger the fill animation as it has compelted
-				console.log('removing the event listeners');
-				document.removeEventListener('mousedown', this.triggerFillForwards)
-				document.removeEventListener('mouseup', this.setFillDirection)
+				this.$refs['container-frame'].removeEventListener('mousedown', this.triggerFillForwards)
+				this.$refs['container-frame'].removeEventListener('mouseup', this.setFillDirection)
 
 				//right when the fingerprint has been filled, the main dot animation is applied
 				//slide-up-down-animation will bring the dot into view, moving it off the screen at the top, then move back down to land on the line.
@@ -445,6 +392,9 @@ export default {
 					pathObj.path.style.strokeDashoffset = pathObj.pathLength * (this.fingerPrintOffSetRatio *  pathObj.removeDirection);
 				});
 				this.fingerPrintEndingPaths.forEach(pathObj => {
+					//the dash length is not equal to the path length, so offsetting by a percentage of the path length is not enough.
+					//this calculation offsets by both the pathLength and dash length so that if moves from the left end of the dash on the right of the path
+					//(dash not visible on the right side) to the right end of the dash on the left of the path length. (dash not visible on the left side of the path)
 					pathObj.path.style.strokeDashoffset = -pathObj.pathLength * (this.fingerPrintEndingPathOffSetRatio) + (pathObj.dashLength * Math.abs(this.fingerPrintEndingPathOffSetRatio - 1));
 				});
 			}
@@ -484,15 +434,18 @@ export default {
 			//uses morphSVG from greenstock animation platform to morph the SVG path
 			//the target is the element with the id '#elastic-path'
 			//morph to the element with the id '#arc-to-top' over 0.3 seconds with no delay, then morph to the straight horizontal path over 1 second with no delay, with a timing funciton to make it "bounce"
-			this.fingerPrintToStraightLineAnimation.to('#elastic-path', 0.3, {
+			this.fingerPrintToStraightLineAnimation.to(`#elastic-path-${this._uid}`, 0.3, {
 				delay: 0,
 				morphSVG: '#arc-to-top',
-			}).to('#elastic-path', 1, {
+			}).to(`#elastic-path-${this._uid}`, 1, {
 				morphSVG: '#straight-path',
 				ease: Elastic.easeOut.config(1.5, 0.3)
 			})
 		},
 		finishMovingDotAndLineToGraphAnimation() {
+			this.elements.dot.removeEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
+			this.elements.dot.removeEventListener('animationend', this.finishMovingDotAndLineToGraphAnimation)
+
 			//when the dot lands on the horizontal line, begin the aniamtion to have the day dots/text at the bottom 
 			this.animateDayDots()
 			//save the morphSVG animation to a timeline so it can be cleared
@@ -501,9 +454,9 @@ export default {
 			//then the main dot should also move the Y value of the center of the graph line.
 			//both the morph and second half of the dot animation happen at the same speed (same animation length of time) to make it appear that the dot is "attached" on the line
 			this.elements.dot.classList.add('follow-line-bend');
-			this.fingerPrintToGraphLineAnimation.to('#elastic-path', 0.5, {
+			this.fingerPrintToGraphLineAnimation.to(`#elastic-path-${this._uid}`, 0.5, {
 				delay: 0,
-				morphSVG: '#graph-line',
+				morphSVG: `#graph-line-${this._uid}`,
 				ease: Power0.easeNone
 			}).eventCallback('onComplete', ()=> {
 				//when the morph has completed hide the elastic path and show the graph line path. They should technically be in the exact same position and the exact same path but sometimes the end result
@@ -512,10 +465,7 @@ export default {
 				this.elements.graphLine.classList.add('visible')
 				//at this time, trigger the animation for the gradient below the graph line to fade into view
 				this.elements.graphLineGradient.classList.add('in-view');
-
-				this.elements.dot.removeEventListener('transitionend', this.finishMovingDotAndLineToGraphAnimation)
-				this.elements.dot.removeEventListener('animationend', this.finishMovingDotAndLineToGraphAnimation)
-				document.addEventListener('click', this.reset)
+				this.$refs['reset-button'].classList.add('animate');
 			});
 		},
 		animateDayDots() {
@@ -528,7 +478,6 @@ export default {
 			if (this.fingerPrintOffSetRatio !== 0) window.requestAnimationFrame(this.fillFingerPrint);
 		},
 		reset() {
-			document.removeEventListener('click', this.reset)
 			//resets variables to initial state for all animations
 			this.fingerPrintToStraightLineAnimation = null;
 			this.fingerPrintToGraphLineAnimation = null;
@@ -543,31 +492,9 @@ export default {
 
 			//creates and  calls animation to reset the finger print line
 			this.fingerPrintResetAnimation = new TimelineLite();
-			this.fingerPrintResetAnimation.to('#elastic-path', 0, {morphSVG: '#elastic-starting'}).eventCallback('onComplete', ()=> {
+			this.fingerPrintResetAnimation.to(`#elastic-path-${this._uid}`, 0, {morphSVG: '#elastic-starting'}).eventCallback('onComplete', ()=> {
 				this.fingerPrintResetAnimation = null
 			});
-			//removes all the particles as they are created randomlly each time
-			while (this.elements.loginParticleContainer.firstChild) {
-				this.elements.loginParticleContainer.removeChild(this.elements.loginParticleContainer.firstChild)
-			}
-			while (this.elements.nameParticlecontainer.firstChild) {
-				this.elements.nameParticlecontainer.removeChild(this.elements.nameParticlecontainer.firstChild)
-			}
-
-			while (this.elements.dayContainer.firstChild) {
-				this.elements.dayContainer.removeChild(this.elements.dayContainer.firstChild)
-			}
-			while (this.elements.monthContainer.firstChild) {
-				this.elements.monthContainer.removeChild(this.elements.monthContainer.firstChild)
-			}
-
-			while (this.elements.loginContainer.firstChild) {
-				this.elements.loginContainer.removeChild(this.elements.loginContainer.firstChild)
-			}
-			while (this.elements.nameContainer.firstChild) {
-				this.elements.nameContainer.removeChild(this.elements.nameContainer.firstChild)
-			}
-
 			//removes the graph line as it gets created from this.createGraphLine()
 			this.elements.graphLine.parentNode.removeChild(this.elements.graphLine);
 			//removes the graph line gradient as it gets created from this.createGraphLine()
@@ -576,17 +503,23 @@ export default {
 			this.elements.startingFingerPrint.classList.remove('hidden')		
 			this.elements.elasticPath.classList.remove('solid-stroke')
 
-			document.getElementById('fill-fprint').removeChild(this.elements.dot)
+			// document.getElementById('fill-fprint').removeChild(this.elements.dot)
 			this.elements.elasticPath.classList.remove('hidden')
 
-			setTimeout(()=>{
-				document.addEventListener('mouseup', this.setFillDirection)
-				document.addEventListener('mousedown', this.triggerFillForwards)
-				this.createIntroText()
-				this.createGraphLine()
-				this.createDayMonthDots()
-				this.setFingerPrintStartingState()
-			},10)
+
+			this.shouldRenderElements = false
+			this.$nextTick(()=> {
+				this.shouldRenderElements = true
+				this.$nextTick(()=> {
+					//resetting the element variables after toggeling the shouldRenderElements variable becausae that causes the elements to be recreated in the dom so the reference needs to be updated (despite haveing the same ref)
+					this.setElementsVariables()
+					//re-add the  event listeners for the container to trigger the animation
+					this.createGraphLine()
+					this.setFingerPrintStartingState()
+					this.$refs['container-frame'].addEventListener('mousedown', this.triggerFillForwards)
+					this.$refs['container-frame'].addEventListener('mouseup', this.setFillDirection)
+				})
+			})
 		}
 	}
 };
@@ -640,8 +573,41 @@ $font: Muli, sans-serif;
 	}
 }
 
+@keyframes reset-button-enter {
+	//this animation rotats the reset button around the bottom right corner as it comes into view
+	0% { transform: rotateZ(270deg) translateY(-11px); opacity: 0; }
+	20% { transform: rotateZ(270deg) translateY(0px); }
+	46% { transform: rotateZ(180deg); opacity: 0.2;}
+	72% { transform: rotateZ(90deg); }
+	90% { opacity: 0.7; }
+	99% {
+		transform: rotateZ(0deg);
+	}
+	100% {
+		opacity: 1;
+	}
+}
 
-#keyframe-example-three {
+#request-animation-frame-example-three {
+	.title {
+		margin-left: 0px;
+	}
+	.top-right-aligned {
+		//for the reset button
+		//sets the origin just a bit greater than the bottom right corner for the animation
+		transform-origin: 85px 33px;
+		visibility: hidden;
+		&.animate {
+			visibility: visible;
+			animation-iteration-count: 1;
+			animation-direction: normal;
+			animation-fill-mode: forwards;
+			animation-timing-function: linear;
+			animation-delay: 0s;
+			animation-duration: 0.5s;
+			animation-name:	reset-button-enter;
+		}
+	}
 	//there is a translation applied on the svg G elements that needs to be accounted for in some positioning values.
 	//saving those values as variables to use in calculations
 	$finger-print-group-Y-translate: -50;
@@ -829,9 +795,7 @@ $font: Muli, sans-serif;
 				stroke-linecap: round;
 				fill: none;
 				stroke: white;
-				// transition: opacity 0.5s ease;
 				will-change: stroke-dashoffset, stroke-dasharray;
-				// transform: translateZ(0) translate(5 0);
 			}
 			.ending-path {
 				fill: none;
@@ -839,7 +803,6 @@ $font: Muli, sans-serif;
 				stroke: gray;
 				stroke-linecap: round;
 				will-change: stroke-dashoffset, stroke-dasharray, opacity;
-				// transform: translateZ(0);
 			}
       		.solid-stroke {
 				stroke-dashoffset: 0;
@@ -853,54 +816,73 @@ $font: Muli, sans-serif;
 			}
     	}
     	.hidden-path {
+			//used on the paths that the Elastic path references during its MorphSVG animations
       		visibility:hidden;
       		stroke-linecap: round;
       		stroke-width: 2.5px;
       		fill: none;
       		stroke: white;
     	}
-    	#graph-line {
+    	.graph-line {
+			// the graph line becomes visible at the end of the animation while the morphed path that came from the finger print becomes hidden.
+			// to resolve the visual bug of the misalignment from the morph animation that occured intermitenly 
       		fill: none;
       		stroke: #7885ff;
       		stroke-width: 3;
     	}
-		#graph-line-gradient {
+		.graph-line-gradient {
+			//the svg gradient defined in the html
 			fill: url("#blue-gradient");
 			stroke: none;
+			//at the end of the animation, the gradient comes into view
 			transition: opacity 0.25s linear;
 			opacity: 0;
 			&.in-view {
 				opacity: 1;
 			}
 		}
-    	#graph-dot {
-      		fill: #fff;
-      		stroke: #fff;
-    	}
 		#dot {
 			opacity: 0;
 			fill: white;
+			//adds a slight glowing affect
 			stroke: rgba(255,255,255,0.5);
 			stroke-width: 4px;
+			//the starting position is the center of the fingerprint
 			transform: translateY(250px);
 			transition: opacity 1s, transform 1.2s;
+
 			animation-iteration-count: 1;
 			animation-direction: normal;
+			//have the values at the end of the animations persist
 			animation-fill-mode: forwards;
 			animation-timing-function: linear;
 			animation-delay: 0s;
+			//css variable updated in this.createGraphLine() to referenced the Y value of the center on the graph line
 			--graphLineCenterY: 0px;
+			//the first half of the animation on the dot. Applied when the finger print has been fully filled.
 			@keyframes dotAnimation-slideUp {
 				0% { transform: translateY(250px); opacity: 0; }
+				//comes into view gradually 
 				15% { opacity: 1; }
+				//moves above the top of the svg
+				//from 15% to 24% the dot crosses the login and name text and those animations are tirggered with delays
 				24% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
+				//slight delay
 				70% { opacity: 1; transform: translateY(-20px + $finger-print-group-Y-translate); }
+				//the dot moves back down to land of the finger print path that morphed into the horizontal line.
+				//the month dots at the dot come into view as the dot moves down
 				100% {
 					opacity: 1;
 					transform: translateY(200px + $finger-print-group-Y-translate);
 				}
 			}
+			//this animation is called right at the end of dotAnimation-slideUp
 			@keyframes dotAnimation-followLineBend {
+				//the dot moves from the center of the svg/center of the line
+				//to the next Y position of the center of the graph line
+				//the time to morph the fringerprint path into the graph line is the same length of time as this animation.
+
+				//when this animation is called the days dots at the bottom come into view
 				0% {
 					opacity: 1;
 					transform: translateY(200px + $finger-print-group-Y-translate);

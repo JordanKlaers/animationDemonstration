@@ -7,6 +7,7 @@
 
 $animation-frame-dimension: 400;
 .animation-example-frame {
+	$frame-padding: 10px;
 	position: relative;
 	width: $animation-frame-dimension + px;
 	height: $animation-frame-dimension + px;
@@ -15,11 +16,18 @@ $animation-frame-dimension: 400;
 	box-shadow: 4px 8px 16px 0 rgba(0,0,0,0.1);
 	background: #fff;
 	color: #333;
-	padding: 10px;
+	padding: $frame-padding;
 	box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 	.title {
 		position: absolute;
 		bottom: $animation-frame-dimension + px;
+		color: black;
+		border-radius: 5px;
+		padding: 5px 10px;
+		background-color: #2EE59D;//#fff;
+		margin: 5px 0;
+		margin-left: -$frame-padding;
+		font-size: 18px;
 	}
 	.square {
 		$square-dim: 70;
@@ -31,5 +39,43 @@ $animation-frame-dimension: 400;
 		margin: $spacer + px;
 		left: 0px;
 		top: 0;
+	}
+	button.top-right-aligned {
+		$button-width: 80;
+		$spacer: 5;
+		position: absolute;
+		
+		background-color: white;
+
+		border: none;
+		border-radius: 5px;
+		padding: $spacer + px;
+		margin: $spacer + px;
+		box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+
+		color: #000;
+		font-size: 16px;
+		text-transform: uppercase;
+		letter-spacing: 2.5px;
+
+		transition: all 0.3s ease 0s;
+		cursor: pointer;
+		outline: none;
+		width: $button-width + px;
+		&:first-of-type {
+			//this bottom positioning reference the height of the parent container so that the buttons are positioned directly above the top edge of the container
+			bottom: $animation-frame-dimension + px;
+			left: $animation-frame-dimension - $button-width * 2 - $spacer * 2 + px;
+		}
+		&:last-of-type {
+			bottom: $animation-frame-dimension + px;
+			left: $animation-frame-dimension - $button-width  - $spacer + px;
+		}
+		&:hover{
+			background-color: #2EE59D;
+			box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+			color: #fff;
+			transform: translateY(-3px);
+		}
 	}
 }

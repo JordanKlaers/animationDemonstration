@@ -1,6 +1,6 @@
 <template>
-	<div class="frame" id="keyframe-example-two">
-		<span class="title">Example two</span>
+	<div class="animation-example-frame" id="keyframe-example-two">
+		<span class="title">KeyFrame Example two</span>
 		<div class="square" ref="one" @click="toggleAnimationOne"></div>
 		<div class="square" ref="two" @click="toggleAnimationTwo"></div>
 		<div class="square" ref="three" @click="toggleAnimationThree"></div>
@@ -41,11 +41,14 @@ export default {
 };
 </script>
 <style lang='scss'>
+
+//overview - mixin to pass variable to keyframe animations, mixin for setting animation properties (can pass a variable for different animation names with the same animation properties)
 @import 'scss/_mixins.scss';
 $frame-dimensions: 400;
 
 //it does not matter where a keyframe animation is declared (if its nested or not)
-//by wrapping the keyframe animationin a mixin, the mixin can be declared anywhere, allowing you to pass a variable to be used. Even the name of the animation could be set via a  variable
+//by wrapping the keyframe animationin a mixin, the mixin can be declared anywhere, allowing you to implement the animation in a place where you can pass a variable through the mixin to be used. 
+//Even the name of the animation could be set via a  variable
 @mixin top-keyframes($move-distance) {
     @keyframes top-keyframes{
     	0% {
@@ -57,7 +60,7 @@ $frame-dimensions: 400;
 			background-color: red;
 		}
 		26% {
-			//if a key is added in the animation but does not exist on the element initally,the transition to that state begins at the start.{
+			//if a key is added in the animation but does not exist on the element initally,the transition to that state begins at the start.
 			transform: rotate(0deg);
 		}
 		50% {
@@ -103,6 +106,7 @@ $frame-dimensions: 400;
    }
 }
 
+
 @mixin bottom-keyframes($move-distance, $starting-top) {
     @keyframes bottom-keyframes{
 		25% {
@@ -138,59 +142,47 @@ $frame-dimensions: 400;
 }
 
 #keyframe-example-two {
-	&.frame {
-		position: relative;
-		width: $frame-dimensions + px;
-		height: $frame-dimensions + px;
-		border: 1px solid rgba(0,0,0,0.1);
-		border-radius: 2px;
-		box-shadow: 4px 8px 16px 0 rgba(0,0,0,0.1);
-		background: #fff;
-		color: #333;
-		padding: 10px;
-		box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
-		.title {
-			position: absolute;
-			bottom: $frame-dimensions + px;
-		}
-		.square {
-			$square-dim: 70;
-			$spacer: 10;
-			position: absolute;
-			background-color: black;
-			height: $square-dim + px;
-			width: $square-dim + px;
-			margin: $spacer + px;
-			left: 0px;
-			//small loop that sets the top position of the three squares so that they do not overlap
-			@for $i from 0 through 2 {
-				$j: $i + 1;
-				&:nth-of-type(#{$j}) {
-					top: ($square-dim * $i) + ($spacer * $i) + px;
-				}
+	.square {
+		$square-dim: 70;
+		$spacer: 10;
+		position: absolute;
+		background-color: black;
+		height: $square-dim + px;
+		width: $square-dim + px;
+		margin: $spacer + px;
+		left: 0px;
+		//small loop that sets the top position of the three squares so that they do not overlap
+		@for $i from 0 through 2 {
+			$j: $i + 1;
+			&:nth-of-type(#{$j}) {
+				top: ($square-dim * $i) + ($spacer * $i) + px;
 			}
-			//saving the value for how far the square will travel horizontally in the first and thrid animations
-			$left-travel-distance: ($frame-dimensions - $square-dim - ($spacer * 2));
-			//saving the  distance from top for the third square
-			$bottom-square-starting-top: ($square-dim * 2) + ($spacer * 2);
+		}
+		//saving the value for how far the square will travel horizontally in the first and thrid animations
+		$left-travel-distance: ($frame-dimensions - $square-dim - ($spacer * 2));
+		//saving the  distance from top for the third square
+		$bottom-square-starting-top: ($square-dim * 2) + ($spacer * 2);
 
-			//calls the keyframe mixins in this way so that  may pass a variable to be used within the animation
-			@include top-keyframes($left-travel-distance);
-			@include middle-keyframes();
-			@include bottom-keyframes($left-travel-distance, $bottom-square-starting-top);
+		//calls the keyframe mixins in this way so that a variable can be passed to be used within the animation
+		//the mixins and the names of the aniamtions match for clarity
+		@include top-keyframes($left-travel-distance);
+		@include middle-keyframes();
+		@include bottom-keyframes($left-travel-distance, $bottom-square-starting-top);
+
+		&.top-square-animation {
+			//uses a mixin to define the base animation properties while passing in the name of what keyframe animation to use
+			@include animation(top-keyframes);
+		}
+		&.middle-square-animation {
+			@include animation(middle-keyframes);
+		}
+		&.bottom-square-animation {
+			@include animation(bottom-keyframes);
 		}
 	}
 }
 
-.top-square-animation {
-	@include animation(top-keyframes);
-}
-.middle-square-animation {
-	@include animation(middle-keyframes);
-}
-.bottom-square-animation {
-	@include animation(bottom-keyframes);
-}
+
 
 
 </style>

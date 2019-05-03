@@ -1,12 +1,11 @@
 <template>
-	<div class="animation-example-frame" id="transition-example-three">
-		<span class="title">Example Three</span>
+	<div class="animation-example-frame" id="transition-example-three" ref="container-frame" tabindex="0">
+		<span class="title">Transition Example Three</span>
 		<div class="tabs-container">
 			<template v-for="(entry, index) in tabs">
 				<div :class="`tab-${index}`" :key="`tab-${entry}`" @click="() => updateActiveIndex(index)">{{entry}}</div>
 				<span class='image-container' :key="entry" :class="{ 'in-view': (index === activeIndex && !shouldHide)}">
 					<img :src="getImagePath(entry)"/>
-					<!-- <span class="inner-content"></span> -->
 				</span>
 			</template>
 		</div>
@@ -26,7 +25,7 @@ export default {
 		}
 	},
 	mounted() {
-		window.addEventListener('keydown', this.arrowKeyPress)
+		this.$refs['container-frame'].onkeydown = this.arrowKeyPress
 	},
 	methods: {
 		getImagePath(color) {
@@ -34,7 +33,6 @@ export default {
 		},
 		updateActiveIndex(index) {
 			if (index === this.activeIndex) {
-				console.log('this', this);
 				this.toggleHideCurrentIndex()
 			} else {
 				this.shouldHide = false;
@@ -43,7 +41,6 @@ export default {
 		},
 		toggleHideCurrentIndex() {
 			this.shouldHide = !this.shouldHide
-			console.log('called', this.shouldHide)
 		},
 		arrowKeyPress(event) {
 			const dir = event.keyCode === 38 ? 'up' : event.keyCode === 40 ? 'down' : ''
@@ -59,6 +56,8 @@ export default {
 };
 </script>
 <style lang='scss'>
+
+// overview - vertically expanding tabs with bottom aligned content / for loop to apply colors/styles
 @import 'scss/_mixins.scss';
 #transition-example-three {
 	.tabs-container {
@@ -66,7 +65,9 @@ export default {
 		display: flex;
 		flex-direction: column;
 		$colors: red, orange, yellow, limeGreen, green, turquoise, blue, purple, pink;
+		//loop through the colors variable array
 		@for $i from 1 through length($colors) {
+			//for each index in the array, reference the tab class name and apply the corresponding color for the $colors array
 			.tab-#{$i - 1} {
 				font-family: cursive;
 				line-height: 23px;
@@ -75,11 +76,14 @@ export default {
 				font-weight: bold;
 				width: 100%;
 				height: 30px;
+				font-size: 16px;
 				@include border-rounded-corners(2px, 5px);
+				//using scss syntax, apply the color for the array that matches the index the loop is currently on
 				background-color: nth($colors, $i);
 			}
 		}
 		.image-container {
+			//image container is a wrapper for the actual image to assist in the animation
 			width: 100%;
 			flex: 1;
 			// overflow hidden because the  image is larger than the container and was not resized to fit.
@@ -87,9 +91,11 @@ export default {
 			//flex/column and justify content to the end, allows the  image container to fill the remaining sapce of the parent container, while aligning the image to the bottom.
 			display: flex;
 			flex-direction: column;
+			//align the image to the bottom (along with flex direction column)
 			justify-content: flex-end;
+
+			//with over flow hidden and max height 0, the images are not displayed
 			max-height: 0px;
-			will-change: max-height;
 			transition: max-height 0.5s linear;
 			&.in-view {
 				//this value can be set dynamically via javascript if you dont know  the  height of the  content

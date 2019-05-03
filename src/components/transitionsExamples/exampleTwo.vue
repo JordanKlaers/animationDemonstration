@@ -1,6 +1,6 @@
 <template>
 	<div class="animation-example-frame" id="transition-example-two" @click="toggleClasses">
-		<span class="title">Example Two</span>
+		<span class="title">Transition Example Two</span>
 		<div class="square" ref="slide"></div>
 		<div class="square" ref="grow"></div>
 		<div class="square" ref="rotate"></div>
@@ -23,7 +23,7 @@ export default {
 			const grow = this.$refs.grow;
 			const rotate = this.$refs.rotate;
 			this.$refs.slide.addEventListener('transitionend', () => {
-				console.log('done');
+				//call back when the css transition change completes for the element the listener is attached to
 			})
 			if (slide && grow && rotate && slide.classList.contains('slide')) {
 				slide.classList.remove('slide');
@@ -39,6 +39,8 @@ export default {
 };
 </script>
 <style lang='scss'>
+
+//overview  - loop for positioning / individual transition values
 @import 'scss/variables';
 #transition-example-two {
 	.square {
@@ -55,18 +57,18 @@ export default {
 		}
 		&.slide {
 			//adding the  transition property within each individual classs allowsfor  unique changes in the animations execution
-			// transition: all 3s ease;
+			transition: all 3s ease;
 			//this calculation moves the div to the left equal to the width of the parent container. Subtracting the squares width and the left and right padding, allows for the square to move from the left side aligning with the left of parent to having the right side align with the right of  the parent
 			left: ($animation-frame-dimension - $square-dim - ($spacer * 2)) + px;
 		}
 		&.grow { 
-			// transition: all 10s ease;
+			transition: all 10s ease;
 			//increaes the squares size by 2
 			height: ($square-dim * 2) + px;
 			width: ($square-dim * 2) + px;
 		}
 		&.rotate {
-			// transition: all 0.5s ease;
+			transition: all 0.5s ease;
 			//Move the div down by an the height of an aditional square because grow doubbles  in size.
 			top: ($square-dim * 2) + $square-dim + ($spacer * 2) + px;
 			transform: rotate(360deg);
