@@ -117,7 +117,6 @@ export default {
 			fingerPrintOffSetRatio: 1,
 			fingerPrintEndingPathOffSetRatio: 0,
 			fillDirection: 'forwards',
-			previousRAFTimeStamp: 0 ,
 			fingerPrintToStraightLineAnimation: null,
 			fingerPrintToGraphLineAnimation: null,
 			fingerPrintResetAnimation: null,
@@ -300,28 +299,24 @@ export default {
 			return  (endValue - startValue) / ticksToComplete; //return the value that will be incremented each tick of the animation
 		},
 		fillFingerPrint(timestamp) {
-			//if the amount of time passed is graeter than the desired frame rate, execute the logic for one frame of the animation
-			if (timestamp - this.previousRAFTimeStamp > 1000/60) {
-				//update the timestamp for the next loop
-				this.previousRAFTimeStamp = timestamp;
-				//if we are filling the fingerprint, update the offsetRatio by an increment by one tick. The tick is based on the number of times needed to increment from 0 to 1 (or 0% to 100%) over a given time.
-				// the increment value is set in the vue data attribute using this.getPropertyIncrement();
-				if (this.fillDirection === 'forwards') {
-					if (this.fingerPrintOffSetRatio > 0) this.fingerPrintOffSetRatio =  this.fingerPrintOffSetRatio + (this.fingerPrintPathIncrement * -1);
-					else {
-						this.fingerPrintOffSetRatio = 0;
-					}
+
+			//update the offsetRatio by an increment/one tick. The tick is based on the number of times needed to increment from 0 to 1 (or 0% to 100%) over a given time.
+			// the increment value is set in the vue data attribute using this.getPropertyIncrement();
+			if (this.fillDirection === 'forwards') {
+				if (this.fingerPrintOffSetRatio > 0) this.fingerPrintOffSetRatio =  this.fingerPrintOffSetRatio + (this.fingerPrintPathIncrement * -1);
+				else {
+					this.fingerPrintOffSetRatio = 0;
 				}
-				//if the fingerprint was not fully filled in, and the mouse was released, not we decrease be the tick amount, same as above
-				if (this.fillDirection === 'backwards') {
-					if (this.fingerPrintOffSetRatio < 1) this.fingerPrintOffSetRatio =  this.fingerPrintOffSetRatio + this.fingerPrintPathIncrement;
-					else this.fingerPrintOffSetRatio = 1;
-				}
-				//update the offset value of each finger print path based on the updated ratio (0% to 100%)
-				this.fingerPrintPaths.forEach(pathObj => {
-					pathObj.path.style.strokeDashoffset = pathObj.pathLength * this.fingerPrintOffSetRatio;
-				});
 			}
+			//if the fingerprint was not fully filled in, and the mouse was released, not we decrease be the tick amount, same as above
+			if (this.fillDirection === 'backwards') {
+				if (this.fingerPrintOffSetRatio < 1) this.fingerPrintOffSetRatio =  this.fingerPrintOffSetRatio + this.fingerPrintPathIncrement;
+				else this.fingerPrintOffSetRatio = 1;
+			}
+			//update the offset value of each finger print path based on the updated ratio (0% to 100%)
+			this.fingerPrintPaths.forEach(pathObj => {
+				pathObj.path.style.strokeDashoffset = pathObj.pathLength * this.fingerPrintOffSetRatio;
+			});
 			//if the ratio has not reached 0% (fully filled in finger print) and greater then 1 (the starting state, not filled in), than continue to call this function to updated the paths offset values
 			if (this.fingerPrintOffSetRatio !== 0 && this.fingerPrintOffSetRatio < 1) {
 				window.requestAnimationFrame(this.fillFingerPrint);
@@ -368,35 +363,30 @@ export default {
 			//this function is called right when the finger print paths have filled. This animation using Request Animation Frame is being called during the same time that the main dot is animating Up then down onto the line.
 			// during the same time that the finger print paths is morphing into the horizontal line
 
-			//if the amount of time passed is graeter than the desired frame rate, execute the logic for one frame of the animation
-			if (timestamp - this.previousRAFTimeStamp > 1000/60) {
-				this.previousRAFTimeStamp = timestamp;
+			//offsetting the paths dasharry by 1 (this.fingerPrintOffSetRatio) * the paths length,  causes the empty space between the dashes to be whats shown
+			//continure increasing the offset value (percentage) by the defined increment.
+			//The amount to increment bu is set with this.getPropertyIncrement()
+			if (this.fingerPrintOffSetRatio < 1) this.fingerPrintOffSetRatio += this.removeFingerPrintPathIncrement;
+			else this.fingerPrintOffSetRatio = 1;
 
-				//offsetting the paths dasharry by 1 (this.fingerPrintOffSetRatio) * the paths length,  causes the empty space between the dashes to be whats shown
-				//continure increasing the offset value (percentage) by the defined increment.
-				//The amount to increment bu is set with this.getPropertyIncrement()
-				if (this.fingerPrintOffSetRatio < 1) this.fingerPrintOffSetRatio += this.removeFingerPrintPathIncrement;
-				else this.fingerPrintOffSetRatio = 1;
-
-				//If removing the finger print dashes are more than 45% removed, begin incrementing the value used the remove the ending paths (the hidden paths that produces the scatter affect on a few finger print paths in the removal animation)
-				if (this.fingerPrintOffSetRatio > 0.45) {
-					//same concept for the scattered ending finger print paths
-					if (this.fingerPrintEndingPathOffSetRatio < 1) this.fingerPrintEndingPathOffSetRatio += this.removeFingerPrintEndingPathIncrement;
-					else this.fingerPrintEndingPathOffSetRatio = 1;
-				}
-				//update the offset of the finger print paths as well as the scattered/ending finger print paths
-				this.fingerPrintPaths.forEach(pathObj => {
-					//an offset of 1 * the path length would result in the space between the dashes being shown
-					//the remove direction controlls the direction that the dash array moves
-					pathObj.path.style.strokeDashoffset = pathObj.pathLength * (this.fingerPrintOffSetRatio *  pathObj.removeDirection);
-				});
-				this.fingerPrintEndingPaths.forEach(pathObj => {
-					//the dash length is not equal to the path length, so offsetting by a percentage of the path length is not enough.
-					//this calculation offsets by both the pathLength and dash length so that if moves from the left end of the dash on the right of the path
-					//(dash not visible on the right side) to the right end of the dash on the left of the path length. (dash not visible on the left side of the path)
-					pathObj.path.style.strokeDashoffset = -pathObj.pathLength * (this.fingerPrintEndingPathOffSetRatio) + (pathObj.dashLength * Math.abs(this.fingerPrintEndingPathOffSetRatio - 1));
-				});
+			//If removing the finger print dashes are more than 45% removed, begin incrementing the value used the remove the ending paths (the hidden paths that produces the scatter affect on a few finger print paths in the removal animation)
+			if (this.fingerPrintOffSetRatio > 0.45) {
+				//same concept for the scattered ending finger print paths
+				if (this.fingerPrintEndingPathOffSetRatio < 1) this.fingerPrintEndingPathOffSetRatio += this.removeFingerPrintEndingPathIncrement;
+				else this.fingerPrintEndingPathOffSetRatio = 1;
 			}
+			//update the offset of the finger print paths as well as the scattered/ending finger print paths
+			this.fingerPrintPaths.forEach(pathObj => {
+				//an offset of 1 * the path length would result in the space between the dashes being shown
+				//the remove direction controlls the direction that the dash array moves
+				pathObj.path.style.strokeDashoffset = pathObj.pathLength * (this.fingerPrintOffSetRatio *  pathObj.removeDirection);
+			});
+			this.fingerPrintEndingPaths.forEach(pathObj => {
+				//the dash length is not equal to the path length, so offsetting by a percentage of the path length is not enough.
+				//this calculation offsets by both the pathLength and dash length so that if moves from the left end of the dash on the right of the path
+				//(dash not visible on the right side) to the right end of the dash on the left of the path length. (dash not visible on the left side of the path)
+				pathObj.path.style.strokeDashoffset = -pathObj.pathLength * (this.fingerPrintEndingPathOffSetRatio) + (pathObj.dashLength * Math.abs(this.fingerPrintEndingPathOffSetRatio - 1));
+			});
 			//continue calling untill both the finger print, and the scatter/ending paths dash array have been removed (the empty space between the dash is whats "visible" on the paths)
 			if (this.fingerPrintOffSetRatio !== 1 || this.fingerPrintEndingPathOffSetRatio !== 1) {
 				window.requestAnimationFrame(this.removeFingerPrintPaths);
@@ -483,7 +473,6 @@ export default {
 			this.fingerPrintOffSetRatio = 1;
 			this.fingerPrintEndingPathOffSetRatio = 0;
 			this.fillDirection = 'forwards';
-			this.previousRAFTimeStamp = 0;
 			
 			//removes eventlisteners so that we can removes css properties without triggering callbacks
 			this.elements.loginText.removeEventListener('transitionend', this.explodeLoginParticles)

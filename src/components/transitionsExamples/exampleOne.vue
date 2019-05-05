@@ -44,6 +44,7 @@ export default {
 		// Adding the trasition property on the classes shared by the two elements will apply the same animation property to  all three blocks.
 
 		//transitions are always changes in CSS properties from value A to value B
+		// the four proprerties of transitions: transition: <property> <duration> <timing-function> <delay>;
 		transition-duration: 0.5s;
 		transition-property: all;
 		transition-timing-function: linear;
