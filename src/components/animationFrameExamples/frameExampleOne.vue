@@ -1,5 +1,5 @@
 <template>
-	<div class="animation-example-frame" id="request-animation-frame-example-one" @click="runAnimation">
+	<div class="animation-example-frame" id="request-animation-frame-example-one" @click="runAnimation" ref="frame">
 		<span class="title">Request Animation Frame Example One</span>
 	</div>
 </template>
@@ -56,7 +56,7 @@ export default {
 			let rgb = this.hslToRgb(colorValue/360)
 			let rgbString = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
 
-			document.getElementById('request-animation-frame-example-one').style.backgroundColor = rgbString
+			this.$refs['frame'].style.backgroundColor = rgbString
 
 			//the setTimeout shows that even if there is a large gap in execution time, the animation still completed its change in the desired amount of time
 			// it just appears more "choppy"

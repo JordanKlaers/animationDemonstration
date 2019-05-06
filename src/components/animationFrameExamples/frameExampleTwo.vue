@@ -1,5 +1,5 @@
 <template>
-	<div class="animation-example-frame" id="request-animation-frame-example-two" @click="runAnimation">
+	<div class="animation-example-frame" id="request-animation-frame-example-two" @click="runAnimation" ref="frame">
 		<span class="title">Request Animation Frame Example Two</span>
 	</div>
 </template>
@@ -18,12 +18,10 @@ export default {
 			animationDuration,
 			colorChangeTick: this.getPropertyIncrement(0, 360, animationDuration),
 			lastCallTimeStamp: 0,
-			startTimeStamp: null,
-			squareElement: null
+			startTimeStamp: null
 		}
 	},
 	mounted() {
-		this.squareElement = document.getElementById('request-animation-frame-example-two')
 		if (!window.requestAnimationFrame) {
 			window.requestAnimationFrame = function(cb) {
 				setTimeout(() => cb(new Date()), 1000 / 60)
@@ -59,7 +57,7 @@ export default {
 			let rgb = this.hslToRgb(this.rainbowValue/360);
 			let rgbString = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 
-			this.squareElement.style.backgroundColor = rgbString;
+			this.$refs['frame'].style.backgroundColor = rgbString;
 
 			//increment  the rainbow value by the calculated increment
 			//color change tick was calculated by getting the number of potential frames over the given animation time
