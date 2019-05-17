@@ -63,7 +63,7 @@ export default {
 			if (this.animationProgress < 1) {
 				setTimeout(() => {
 				window.requestAnimationFrame(this.colorFade)
-				}, 0)
+				}, 300)
 			} else if (this.animationProgress >= 1) {
 				this.shouldRunAnimation = !this.shouldRunAnimation
 			}

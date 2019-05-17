@@ -1,10 +1,11 @@
 <template>
 	<div id='container'>
-		<template v-for="(component, name, index) in components">
+		<!-- <template v-for="(component, name, index) in components">
 			<transition :key="component.name" :name="fadeDirection" v-on:after-leave="setAnimationCompleted" v-on:after-enter="setAnimationCompleted">
 				<component :key="component.name" :is="component" v-if="componentDisplay[index]"></component>
 			</transition>
-		</template>
+		</template> -->
+		<component v-bind:is='test'></component>
 		<div id="examples-nav-list">
 			<div v-for="(component, name, index) in components"
 				:key="index"
@@ -56,6 +57,11 @@ export default {
 		}
 	},
 	created() {
+		this.test = 'nestedComponent';
+		Vue.component('nestedComponent', function (resolve) {
+			require(['./testFolder/testFolder/nestedComponent'], resolve)
+		})
+
 		let displayArray = []
 		//on load, loop through the imported comopnents and for each, add true for the first and false for the rest, into the component display array used for rendering the components
 		this.$_.forEach(Object.keys(this.components), (value, index) => {
