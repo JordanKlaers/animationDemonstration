@@ -60,7 +60,7 @@
 				<path class="fprint-path" d="M90,201.2c0,0,4.6,28.1-11.4,45.2"/>
 				<path class="fprint-path" id="elastic-starting" d="M67.3,219C65,188.1,78,180.1,92.7,180.3c18.3,2,23.7,18.3,20,46.7"/>
 			</g>
-			<g id="fill-fprint" transform="translate(110,50)">
+			<g :id="`fill-fprint-${_uid}`" class="fill-fprint" transform="translate(110,50)">
 				<path class="fprint-path light-purple" d="M46.1,214.3c0,0-4.7-15.6,4.1-33.3"/>
 				<path class="fprint-path remove-backwards" d="M53.5,176.8c0,0,18.2-30.3,57.5-13.7"/>
 				<path class="fprint-path light-purple remove-backwards" d="M115.8,166.5c0,0,19.1,8.7,19.6,38.4"/>
@@ -160,7 +160,7 @@ export default {
 			this.fingerPrintPaths.push({
 				path,
 				pathLength,
-				removeDirection: path.classList.contains('remove-backwards') ? -1 : 1
+				removeDirection: path.classList && path.classList.contains('remove-backwards') || path.getAttribute('class').includes('remove-backwards') ? -1 : 1
 			})
 		})
 		this.elements.endingPathsGroup.forEach(path => {
@@ -206,8 +206,8 @@ export default {
 			this.elements.loginParticles = this.$refs['login-particle']
 			this.elements.nameParticles = this.$refs['name-particle']
 			els.elasticPath = this.$refs['elastic-path']
-			els.fingerPrintGroup = [].slice.call(document.querySelectorAll('#fill-fprint .fprint-path'))
-			els.endingPathsGroup = [].slice.call(document.querySelectorAll('#fill-fprint .ending-path'))
+			els.fingerPrintGroup = [].slice.call(document.querySelectorAll(`#fill-fprint-${this._uid} .fprint-path`))
+			els.endingPathsGroup = [].slice.call(document.querySelectorAll(`#fill-fprint-${this._uid} .ending-path`))
 			//dot the main anumation dot is set in this.createGraphLine()
 			this.elements.dayDots = this.$refs['day-dot']
 			this.elements.monthDots = this.$refs['month-dot']
@@ -247,7 +247,7 @@ export default {
 			dataset[n-1].y = 0.5
 
 			//creates the graph line that the line in the finger print will morph into
-			d3.select("svg #fill-fprint").insert('path', '#fill-fprint path:last-of-type')
+			d3.select(`svg #fill-fprint-${this._uid}`).insert('path', `#fill-fprint-${this._uid} path:last-of-type`)
 				.datum(dataset) // 10. Binds data to the line 
 				.attr("id", `graph-line-${this._uid}`)
 				.attr('class', 'graph-line') // Assign a class for styling 
@@ -255,7 +255,7 @@ export default {
 				.style('visibility', 'hidden')
 
 			//creates a duplicate of the graph line which will have its path updates so that it can be filled with a gradient
-			var graphLineGradient = d3.select("#fill-fprint").append("path")
+			var graphLineGradient = d3.select(`#fill-fprint-${this._uid}`).append("path")
 				.datum(dataset) // 10. Binds data to the line 
 				.attr("id", `graph-line-gradient-${this._uid}`) 
 				.attr('class', 'graph-line-gradient')// Assign a class for styling 
@@ -330,7 +330,8 @@ export default {
 
 				//right when the fingerprint has been filled, the main dot animation is applied
 				//slide-up-down-animation will bring the dot into view, moving it off the screen at the top, then move back down to land on the line.
-				this.elements.dot.classList.add('slide-up-down-animation');
+				if (this.elements.dot.classList) this.elements.dot.classList.add('slide-up-down-animation')
+				else this.elements.dot.setAttribute('class', `${this.elements.dot.getAttribute('class') || ''} slide-up-down-animation`);
 
 				// the month dots/text displayed at the top (persistent at the end of the animation) will come into view in the middle of the dot animation.
 				//their animation is applied now (when the finger print has been filled) with an delay so that as the main dot slide down to land on the line, the month dots seem to begin their animation right as the main dot slides down past their location
@@ -344,8 +345,13 @@ export default {
 				//a transition delay on these elements (the name test and login text) allows the text to dissappear right when the dot crosses the text as its moving up
 				//the name and login text have a slightly different delay as the dot crosses the text at different times
 				//the hidden class is a default of visibility: hidden !important
-				this.elements.loginText.classList.add('hidden')
-				this.elements.nameText.classList.add('hidden')
+				if (this.elements.loginText.classList) {
+					this.elements.loginText.classList.add('hidden')
+					this.elements.nameText.classList.add('hidden')
+				} else {
+					this.elements.loginText.setAttribute('class', `${this.elements.loginText.getAttribute('class')} hidden`);
+					this.elements.nameText.setAttribute('class', `${this.elements.nameText.getAttribute('class')} hidden`);
+				}
 
 				//right when the text is hidden is when the particles should explode
 				//an event listener for the animation fo hidding the text is added to trigger the particle explosion animation. 
@@ -355,7 +361,8 @@ export default {
 				//when the finger print has filled, the animation to morph one of the finger print paths begins.
 				this.transformFingerPrintLine();
 				//there is a duplicate of the finger print where all the paths are white. This is removed instantly when the fingerprint has filled, as part of the visual effect when the finger print paths are removed
-				this.elements.startingFingerPrint.classList.add('hidden');
+				if (this.elements.startingFingerPrint.classList) this.elements.startingFingerPrint.classList.add('hidden')
+				else this.elements.startingFingerPrint.setAttribute('class', `${this.elements.startingFingerPrint.getAttribute('class')} hidden`)
 				window.requestAnimationFrame(this.removeFingerPrintPaths);
 			}
 		},
@@ -395,29 +402,37 @@ export default {
 		animateMonthDots() {
 			for (let el of this.elements.monthDots) {
 				//the month dots at the top have a different transition time for the opacity property as well as the transform property to produce the spreading affect when they come into view
-				el.classList.add('animate')
+				if (el.classList) el.classList.add('animate')
+				else el.setAttribute('class', `${el.getAttribute('class')} animate`);
 			}
 		},
 		explodeLoginParticles() {	
 			//the container is initall hidden, to hide the dots as the start full visible.
-			this.elements.loginParticleContainer.classList.add('visible');
+
+			if (this.elements.loginParticleContainer.classList) this.elements.loginParticleContainer.classList.add('visible');
+			else this.elements.loginParticleContainer.setAttribute('class', `${this.elements.loginParticleContainer.getAttribute('class')} 'visible'`)
+
 			for (let el of this.elements.loginParticles) {
 				//adds the explode class which applies the 3d transform to move the dots, and fade them out
-				el.classList.add('explode');
+				if (el.classList) el.classList.add('explode')
+				else el.setAttribute('class', `${el.getAttribute('class')} explode`);
 			}
 		},
 		explodeNameParticles() {
 			//the container is initall hidden, to hide the dots as the start full visible.
-			this.elements.nameParticlecontainer.classList.add('visible');
+			if (this.elements.nameParticlecontainer.classList) this.elements.nameParticlecontainer.classList.add('visible')
+			else this.elements.nameParticlecontainer.setAttribute('class', `${this.elements.nameParticlecontainer.getAttribute('class')} 'visible'`)
 			for (let el of this.elements.nameParticles) {
 				//adds the explode class which applies the 3d transform to move the dots, and fade them out
-				el.classList.add('explode');
+				if (el.classList) el.classList.add('explode')
+				else el.setAttribute('class', `${el.getAttribute('class')} explode`);
 			}
 		},
 		transformFingerPrintLine() {
 			//adds a solid stroke the the finger print path that gets morphed.
 			//the reason is that the length of the path changes in the morph and the dash array would  be seen on the updated path
-			this.elements.elasticPath.classList.add('solid-stroke');
+			if (this.elements.elasticPath.classList) this.elements.elasticPath.classList.add('solid-stroke')
+			else this.elements.elasticPath.setAttribute('class', `${this.elements.elasticPath.getAttribute('class')} solid-stroke`) 
 			//saving the animation to a variable so it can be cleared
 			this.fingerPrintToStraightLineAnimation = new TimelineLite();
 			//uses morphSVG from greenstock animation platform to morph the SVG path
@@ -442,7 +457,8 @@ export default {
 			//at the same time the line (that was once a finger print path) morphs from the horizontal line to the graph line,
 			//then the main dot should also move the Y value of the center of the graph line.
 			//both the morph and second half of the dot animation happen at the same speed (same animation length of time) to make it appear that the dot is "attached" on the line
-			this.elements.dot.classList.add('follow-line-bend');
+			if (this.elements.dot.classList) this.elements.dot.classList.add('follow-line-bend')
+			else this.elements.dot.setAttribute('class', `${this.elements.dot.getAttribute('class') || ''} follow-line-bend`)
 			this.fingerPrintToGraphLineAnimation.to(`#elastic-path-${this._uid}`, 0.5, {
 				delay: 0,
 				morphSVG: `#graph-line-${this._uid}`,
@@ -450,16 +466,23 @@ export default {
 			}).eventCallback('onComplete', ()=> {
 				//when the morph has completed hide the elastic path and show the graph line path. They should technically be in the exact same position and the exact same path but sometimes the end result
 				//of the morph does not match and preduces a visual error
-				this.elements.elasticPath.classList.add('hidden')
-				this.elements.graphLine.classList.add('visible')
+				if (this.elements.elasticPath.classList) {
+					this.elements.elasticPath.classList.add('hidden')
+					this.elements.graphLine.classList.add('visible')
+				} else {
+					this.elements.elasticPath.setAttribute('class', `${this.elements.elasticPath.getAttribute('class')} hidden`)
+					this.elements.graphLine.setAttribute('class', `${this.elements.graphLine.getAttribute('class')} visible`)
+				}
 				//at this time, trigger the animation for the gradient below the graph line to fade into view
-				this.elements.graphLineGradient.classList.add('in-view');
+				if (this.elements.graphLineGradient.classList) this.elements.graphLineGradient.classList.add('in-view')
+				else this.elements.graphLineGradient.setAttribute('class', `this.elements.graphLineGradient.getAttribute('class') in-view`)
 				this.$refs['reset-button'].classList.add('animate');
 			});
 		},
 		animateDayDots() {
 			for (let el of this.elements.dayDots) {
-				el.classList.add('animate')
+				if (el.classList) el.classList.add('animate')
+				else el.setAttribute('class', `${el.getAttribute('class')} animate`)
 			}
 		},
 		triggerFillForwards() {
@@ -486,13 +509,16 @@ export default {
 			//removes the graph line as it gets created from this.createGraphLine()
 			this.elements.graphLine.parentNode.removeChild(this.elements.graphLine);
 			//removes the graph line gradient as it gets created from this.createGraphLine()
-			document.getElementById('fill-fprint').removeChild(this.elements.graphLineGradient)
+			document.getElementById(`fill-fprint-${this._uid}`).removeChild(this.elements.graphLineGradient)
 
-			this.elements.startingFingerPrint.classList.remove('hidden')		
-			this.elements.elasticPath.classList.remove('solid-stroke')
-
-			// document.getElementById('fill-fprint').removeChild(this.elements.dot)
-			this.elements.elasticPath.classList.remove('hidden')
+			if (this.elements.startingFingerPrint.classList) {
+				this.elements.startingFingerPrint.classList.remove('hidden')		
+				this.elements.elasticPath.classList.remove('solid-stroke')
+				this.elements.elasticPath.classList.remove('hidden')
+			} else {
+				this.elements.startingFingerPrint.setAttribute('class', `${this.elements.startingFingerPrint.getAttribute('class').replace('hidden', '')}`)
+				this.elements.elasticPath.setAttribute('class', `${this.elements.elasticPath.getAttribute('class').replace(/solid-stroke|hidden/gi, '')}`)
+			}
 
 
 			this.shouldRenderElements = false
@@ -777,7 +803,7 @@ $font: Muli, sans-serif;
         		stroke: white;
 			}
     	}
-    	#fill-fprint {
+    	.fill-fprint {
       		.fprint-path {
 				stroke-width: 2.5px;
 				stroke-linecap: round;

@@ -12,8 +12,9 @@ body, html {
 
 #app {
 	min-height: 100%;
-	padding: 30px;
+	padding: 60px 0;
 	background-color: var(--background-color);
 	display: flex;
 	overflow: hidden;
+	position: relative;
 }

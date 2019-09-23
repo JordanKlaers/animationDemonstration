@@ -1,7 +1,9 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const webpack = require('webpack');
 
 function resolve (dir) {
 	return path.join(__dirname, './', dir)
@@ -9,15 +11,12 @@ function resolve (dir) {
 
 module.exports = {
 	entry: {
-		app: './src/main.js',
+		app: [ 'babel-polyfill', './src/main.js'],
+		prototype: './src/vuePrototypes.js'
 	},
-	devtool: 'inline-source-map',
+	// devtool: '#inline-source-map',
 	devServer: {
-		contentBase: 'dist/',
-		publicPath: '/dist/',
-		watchContentBase: true,
 		port: 9000,
-		open: true
 	},
 	resolve: {
 		extensions: ['.js', '.vue', '.json', '.scss', '.jpg'],
@@ -29,6 +28,27 @@ module.exports = {
 			'transitions': resolve('src/components/transitionsExamples'),
 			'keyFrame': resolve('src/components/keyFrameExamples'),
 			'animationFrame': resolve('src/components/animationFrameExamples')
+		}
+	},
+	optimization: {
+		minimizer: [new TerserPlugin()],
+		runtimeChunk: 'single',
+		usedExports: true,
+		splitChunks: {
+			chunks: 'all',
+			cacheGroups: {
+				lodash: {
+					test: /[\\/]node_modules[\\/](lodash-es)[\\/]/,
+					name: 'lodash',
+					chunks: 'all',
+					priority: 2
+				},
+				node: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'node',
+					chunks: 'all'
+				}
+			}
 		}
 	},
 	module: {
@@ -46,14 +66,9 @@ module.exports = {
 				loader: 'vue-loader'
 			},
 			{
-				test: /\.(png|jpg|gif)$/,
-				use: [
-					{
-						loader: 'file-loader',
-						options: {},
-					},
-				],
-			},
+				test: /\.(jpe?g|png|gif|svg)$/i, 
+				loader: "file-loader"
+			}
 		]
 	},
 	mode: "development",
@@ -62,11 +77,14 @@ module.exports = {
 			title: 'Output Management',
 			template: 'src/index.html'
 		}),
-		new HtmlWebpackHarddiskPlugin()
+		new HtmlWebpackHarddiskPlugin(),
+		// new UglifyJsPlugin(),
+		new TerserPlugin(),
+		new webpack.optimize.ModuleConcatenationPlugin()
 	],
 	output: {
 		filename: '[name].bundle.js',
 		path: path.resolve(__dirname, 'dist/'),
-		publicPath: '/dist/'
+		publicPath: '/'
 	}
 };

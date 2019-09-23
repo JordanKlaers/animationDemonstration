@@ -5,7 +5,6 @@
 </template>
 
 <script>
-import colorUtil from '../mixins/colorUtil'
 export default {
 	name: 'RequestAnimationFrameOne',
 	components: {
@@ -28,9 +27,6 @@ export default {
 			}
 		}
 	},
-	mixins: [
-		colorUtil
-	],
 	methods: {
 		getPropertyIncrement(startValue, endValue, duration) {
 			const TICK_TIME = 1000 / 60; //to achieve 60fps, 1 frame needs to render every 16ms
@@ -54,7 +50,7 @@ export default {
 
 
 			//calculate the value to be applied to the element
-			let rgb = this.hslToRgb(this.rainbowValue/360);
+			let rgb = this.$hslToRgb(this.rainbowValue/360);
 			let rgbString = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 
 			this.$refs['frame'].style.backgroundColor = rgbString;

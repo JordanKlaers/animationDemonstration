@@ -1,8 +1,8 @@
 import _ from 'lodash';
 export default {
-	$hslToRgb: h => {
-			var s = 1;
-			var l = 0.5;
+	$hslToRgb: function(h) {
+		var s = 1;
+		var l = 0.5;
 		var r, g, b;
 		if(s == 0){
 			r = g = b = l; // achromatic

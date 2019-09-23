@@ -5,7 +5,6 @@
 </template>
 
 <script>
-import colorUtil from '../mixins/colorUtil'
 export default {
 	name: 'RequestAnimationFrameOne',
 	components: {
@@ -20,9 +19,6 @@ export default {
 			animationProgress: 0
 		}
 	},
-	mixins: [
-		colorUtil
-	],
 	mounted() {
 		if (!window.requestAnimationFrame) {
 			window.requestAnimationFrame = function(cb) {
@@ -53,7 +49,7 @@ export default {
 
 			var colorValue = this.endValue * this.animationProgress
 
-			let rgb = this.hslToRgb(colorValue/360)
+			let rgb = this.$hslToRgb(colorValue/360)
 			let rgbString = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
 
 			this.$refs['frame'].style.backgroundColor = rgbString

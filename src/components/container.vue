@@ -1,18 +1,23 @@
 <template>
-	<div id='container'>
-		<!-- <template v-for="(component, name, index) in components">
-			<transition :key="component.name" :name="fadeDirection" v-on:after-leave="setAnimationCompleted" v-on:after-enter="setAnimationCompleted">
-				<component :key="component.name" :is="component" v-if="componentDisplay[index]"></component>
-			</transition>
-		</template> -->
-		<component v-bind:is='test'></component>
-		<div id="examples-nav-list">
-			<div v-for="(component, name, index) in components"
-				:key="index"
-				:class="{ active: componentDisplay[index] }"
-				v-on:click="updateActiveIndex(index)">
-				<component :key="component.name" :is="component" v-if="index !== 89"></component>
+	<div style="display: flex; width: 100%;">
+		<div id="nav-container">
+			<div id="examples-nav-list" ref="nav-list-container">
+				<div class="grid-container">
+					<div v-for="(component, name, index) in components" class="item"
+						:key="index"
+						:class="{ active: componentDisplay[index] }"
+						v-on:click="updateActiveIndex(index)">
+						<component :key="component.name" :is="component" v-if="index !== 89"></component>
+					</div>
+				</div>
 			</div>
+		</div>
+		<div id='container'>
+			<template v-for="(component, name, index) in components">
+				<transition :key="component.name" :name="fadeDirection" v-on:after-leave="setAnimationCompleted" v-on:after-enter="setAnimationCompleted">
+					<component :key="component.name" :is="component" v-if="componentDisplay[index]"></component>
+				</transition>
+			</template>
 		</div>
 	</div>
 </template>
@@ -57,10 +62,6 @@ export default {
 		}
 	},
 	created() {
-		this.test = 'nestedComponent';
-		Vue.component('nestedComponent', function (resolve) {
-			require(['./testFolder/testFolder/nestedComponent'], resolve)
-		})
 
 		let displayArray = []
 		//on load, loop through the imported comopnents and for each, add true for the first and false for the rest, into the component display array used for rendering the components
@@ -86,6 +87,12 @@ export default {
 	},
 	mounted() {
 		window.addEventListener('wheel', this.handleScroll)
+		let width = document.querySelector('#examples-nav-list').getBoundingClientRect().width
+		document.querySelector('#app #nav-container').style.setProperty('width', `${width + 20}px`);
+		window.addEventListener('resize', (event) => {
+			let width = document.querySelector('#examples-nav-list').getBoundingClientRect().width
+			document.querySelector('#app #nav-container').style.setProperty('width', `${width + 20}px`);
+		})
 	},
 	methods: {
 		handleScroll(event) {
@@ -151,177 +158,183 @@ export default {
 	opacity: 0;
 }
 
-
-#examples-nav-list {
-	position: absolute;
-	left: 20px;
-	top: 0;
-	height: 80vh;
-	width: 80px;
-	margin-top: 10vh;
-	> div {
-		$scale: 0.179;
-		&+ div {
-			margin-top: 20px;
-		}
-		position: relative;
-		width: 70px;
-		// padding-top: 100%;
-		height: 70px;
-		background-color: white;
-		&.active {
-			transition: all .4s cubic-bezier(.13,.92,.75,1.89);;
-			transform: scale(1.2) translateX(8%);
-			box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
-		}
-		.animation-example-frame {
-			pointer-events: none;
-			$animation-frame-dimension: 400;
-			position: absolute;
-			z-index: 10;
-			$frame-padding: 10px * $scale;
-			width: $animation-frame-dimension * $scale + px;
-			height: $animation-frame-dimension * $scale + px;
-			padding: $frame-padding * $scale;
-			.title {
-				bottom: $animation-frame-dimension * $scale + px;
-				border-radius: 5px * $scale;
-				padding: 5px * $scale 10px * $scale;
-				margin: 5px * $scale 0;
-				margin-left: -$frame-padding * $scale;
-				font-size: 18px * $scale;
-			}
-			.square {
-				$square-dim: 70 * $scale;
-				$spacer: 10 * $scale;
-				height: $square-dim + px;
-				width: $square-dim + px;
-				margin: $spacer + px;
-				background-color: black;
-				// top: 0;
-				@for $i from 0 through 2 {
-					$j: $i + 1;
-					&:nth-of-type(#{$j}) {
-						top: ($square-dim * $i) + ($spacer * $i) + px;
-					}
+#nav-container {
+	display: inline-block;
+	margin-left: 30px;
+	#examples-nav-list {
+		top: 0;
+	    width: 90vh;
+	    transform-origin: top right;
+	    transform: rotateZ(-90deg) translateY(-90vh) rotateY(180deg) translateX(90vh);
+		.grid-container {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(70px, 71px));
+			align-items: end;
+		  	grid-row-gap: 30px;
+			grid-column-gap: 20px;
+			justify-content: start;
+			.item {
+				$scale: 0.179;
+				transform: rotateZ(270deg) rotateY(180deg);
+				background-color: pink;
+				width: 70px;
+				height: 70px;
+				background-color: white;
+				&.active {
+					transition: all .4s cubic-bezier(.13,.92,.75,1.89);
+					transform: rotateZ(270deg) rotateY(180deg) scale(1.2) translateX(8%);
+					box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 				}
-			}
-			button.top-right-aligned {
-				$button-width: 70 * $scale;
-				$spacer: 5 * $scale;
-				border-radius: 5px * $scale;
-				padding: $spacer + px;
-				margin: $spacer + px;
-				font-size: 16px * $scale;
-				letter-spacing: 2.5px * $scale;
-				width: $button-width + px;
-				&:first-of-type {
-					//this bottom positioning reference the height of the parent container so that the buttons are positioned directly above the top edge of the container
-					bottom: $animation-frame-dimension * $scale + px;
-					left: $animation-frame-dimension * $scale - $button-width * 2 - $spacer * 2 + px;
-				}
-				&:last-of-type {
-					bottom: $animation-frame-dimension * $scale+ px;
-					left: $animation-frame-dimension * $scale - $button-width  - $spacer + px;
-				}
-				&:hover{
-					transform: translateY(-3px * $scale);
-				}
-			}
-		}
-		#transition-example-three {
-			.tabs-container {
-				@for $i from 1 through 9 {
-					.tab-#{$i - 1} {
-						line-height: 23px * $scale;
-						padding-left: 5px * $scale;
-						font-size: 16px * $scale;
-						border: 2px * $scale solid black;
+				.animation-example-frame {
+					pointer-events: none;
+					$animation-frame-dimension: 400;
+					position: absolute;
+					z-index: 10;
+					$frame-padding: 10px * $scale;
+					width: $animation-frame-dimension * $scale + px;
+					height: $animation-frame-dimension * $scale + px;
+					padding: $frame-padding * $scale;
+					.title {
+						bottom: $animation-frame-dimension * $scale + px;
 						border-radius: 5px * $scale;
-						width: 100%;
-						height: 30px * $scale;
+						padding: 5px * $scale 10px * $scale;
+						margin: 5px * $scale 0;
+						margin-left: -$frame-padding * $scale;
+						font-size: 18px * $scale;
+					}
+					.square {
+						$square-dim: 70 * $scale;
+						$spacer: 10 * $scale;
+						height: $square-dim + px;
+						width: $square-dim + px;
+						margin: $spacer + px;
+						background-color: black;
+						// top: 0;
+						@for $i from 0 through 2 {
+							$j: $i + 1;
+							&:nth-of-type(#{$j}) {
+								top: ($square-dim * $i) + ($spacer * $i) + px;
+							}
+						}
+					}
+					button.top-right-aligned {
+						$button-width: 70 * $scale;
+						$spacer: 5 * $scale;
+						border-radius: 5px * $scale;
+						padding: $spacer + px;
+						margin: $spacer + px;
+						font-size: 16px * $scale;
+						letter-spacing: 2.5px * $scale;
+						width: $button-width + px;
+						&:first-of-type {
+							//this bottom positioning reference the height of the parent container so that the buttons are positioned directly above the top edge of the container
+							bottom: $animation-frame-dimension * $scale + px;
+							left: $animation-frame-dimension * $scale - $button-width * 2 - $spacer * 2 + px;
+						}
+						&:last-of-type {
+							bottom: $animation-frame-dimension * $scale+ px;
+							left: $animation-frame-dimension * $scale - $button-width  - $spacer + px;
+						}
+						&:hover{
+							transform: translateY(-3px * $scale);
+						}
 					}
 				}
-			}
-		}
-		#keyframe-example-three {
-			.spinner-container {
-				$container-dim: 120px * $scale;
-				width: $container-dim;
-				height: $container-dim;
-				div {
-					margin-top: 0;
-					width: $container-dim/3;
-					height: $container-dim/3;
-					animation: none;
-					&:nth-of-type(2) {
-						transform:translate(200%)
-					}
-					&:nth-of-type(3) {
-						transform:translate(200%, 200%)
-					}
-					&:nth-of-type(4) {
-						transform:translate(0, 200%)
+				#transition-example-three {
+					.tabs-container {
+						@for $i from 1 through 9 {
+							.tab-#{$i - 1} {
+								line-height: 23px * $scale;
+								padding-left: 5px * $scale;
+								font-size: 16px * $scale;
+								border: 2px * $scale solid black;
+								border-radius: 5px * $scale;
+								width: 100%;
+								height: 30px * $scale;
+							}
+						}
 					}
 				}
-			}
-		}
-		#request-animation-frame-example-three {
-			$finger-print-group-Y-translate: -50 * $scale;
-			$finger-print-group-X-translate: -110 * $scale;
-			//the month container has the text of the month and the 5 dots
-			#month-container {
-				top: 15px * $scale;
-				//the left and transform are a techinque for centering an element horizontally. flex with maring auto woudl be an alternative but is not preferred.
-				left: 50%;
-				transform: translateX(-50%);
-				//this variable is used to calculate how far the dots are transformed on the X axis
-				$month-container-width: 150px * $scale;
-			}
-			#day-container {
-				bottom: 35px * $scale;
-				left: 50%;
-				transform: translateX(-50%);
-				z-index: 2;
-				$day-container-width: 130px * $scale;
-			}
-			#my-name {
-				font-size: 16px * $scale;
-				top: 15px * $scale;
-				margin: 0;
-				p {
-					max-width: fit-content;
+				#keyframe-example-three {
+					.spinner-container {
+						$container-dim: 120px * $scale;
+						width: $container-dim;
+						height: $container-dim;
+						div {
+							margin-top: 0;
+							width: $container-dim/3;
+							height: $container-dim/3;
+							animation: none;
+							&:nth-of-type(2) {
+								transform:translate(200%)
+							}
+							&:nth-of-type(3) {
+								transform:translate(200%, 200%)
+							}
+							&:nth-of-type(4) {
+								transform:translate(0, 200%)
+							}
+						}
+					}
 				}
-			}
-		    #login-text {
-				margin: 0;
-				font-size: 16px * $scale;
-				top: 130px * $scale; 
-				height: 50px * $scale;
-				p {
-					max-width: fit-content;
+				#request-animation-frame-example-three {
+					$finger-print-group-Y-translate: -50 * $scale;
+					$finger-print-group-X-translate: -110 * $scale;
+					//the month container has the text of the month and the 5 dots
+					#month-container {
+						top: 15px * $scale;
+						//the left and transform are a techinque for centering an element horizontally. flex with maring auto woudl be an alternative but is not preferred.
+						left: 50%;
+						transform: translateX(-50%);
+						//this variable is used to calculate how far the dots are transformed on the X axis
+						$month-container-width: 150px * $scale;
+					}
+					#day-container {
+						bottom: 35px * $scale;
+						left: 50%;
+						transform: translateX(-50%);
+						z-index: 2;
+						$day-container-width: 130px * $scale;
+					}
+					#my-name {
+						font-size: 16px * $scale;
+						top: 15px * $scale;
+						margin: 0;
+						p {
+							max-width: fit-content;
+						}
+					}
+				    #login-text {
+						margin: 0;
+						font-size: 16px * $scale;
+						top: 130px * $scale; 
+						height: 50px * $scale;
+						p {
+							max-width: fit-content;
+						}
+					}
+				  
+					svg {
+						width: 400px * $scale;
+						height: 400px * $scale;
+						#starting-fprint {
+				      		.fprint-path {
+				        		stroke-width: 2.5px * $scale;
+							}
+				    	}
+				    	#fill-fprint {
+				      		.fprint-path {
+								stroke-width: 2.5px * $scale;
+							}
+							.ending-path {
+								stroke-width: 2.5px * $scale;
+							}
+				    	}
+				    	#graph-line {
+				      		stroke-width: 3 * $scale;
+				    	}
+					}
 				}
-			}
-		  
-			svg {
-				width: 400px * $scale;
-				height: 400px * $scale;
-				#starting-fprint {
-		      		.fprint-path {
-		        		stroke-width: 2.5px * $scale;
-					}
-		    	}
-		    	#fill-fprint {
-		      		.fprint-path {
-						stroke-width: 2.5px * $scale;
-					}
-					.ending-path {
-						stroke-width: 2.5px * $scale;
-					}
-		    	}
-		    	#graph-line {
-		      		stroke-width: 3 * $scale;
-		    	}
 			}
 		}
 	}
