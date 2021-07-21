@@ -64,9 +64,12 @@ export default {
 	created() {
 
 		let displayArray = []
-		//on load, loop through the imported comopnents and for each, add true for the first and false for the rest, into the component display array used for rendering the components
+		const lastComponentIndex = Object.keys(this.components).length - 1;
+		//on load set the active index to the last module, its the best one so lets see it first
+		this.activeIndex = lastComponentIndex
+		//on load, loop through the imported comopnents and for each, add true for the last and false for the rest, into the component display array used for rendering the components
 		this.$_.forEach(Object.keys(this.components), (value, index) => {
-				if (index === 0) displayArray.push(true)
+				if (index === lastComponentIndex) displayArray.push(true)
 				else displayArray.push(false)
 			});
 		this.componentDisplay = displayArray

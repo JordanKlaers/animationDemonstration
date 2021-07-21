@@ -78,7 +78,6 @@ module.exports = {
 			template: 'src/index.html'
 		}),
 		new HtmlWebpackHarddiskPlugin(),
-		// new UglifyJsPlugin(),
 		new TerserPlugin(),
 		new webpack.optimize.ModuleConcatenationPlugin()
 	],
