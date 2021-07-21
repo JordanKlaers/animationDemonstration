@@ -1,8 +1,0 @@
-@mixin no-border-rounded-corners($size) {
-	border: 0px solid transparent;
-	border-radius: $size;
-}
-@mixin border-rounded-corners($border-size, $size) {
-	border: $border-size solid black;
-	border-radius: $size;
-}
