@@ -28,7 +28,8 @@ module.exports = {
 			'transitions': resolve('src/components/transitionsExamples'),
 			'keyFrame': resolve('src/components/keyFrameExamples'),
 			'animationFrame': resolve('src/components/animationFrameExamples')
-		}
+		},
+		root: path.resolve("./")
 	},
 	optimization: {
 		minimizer: [new TerserPlugin()],
