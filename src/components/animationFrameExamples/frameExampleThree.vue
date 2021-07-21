@@ -561,7 +561,7 @@ $font: Muli, sans-serif;
 	@for $i from 1 through 30 {
 		&:nth-child(#{$i}) {
 			//within the parent container (which is the particle container) the dots are randomly positioned within the middle 80% of the parent container
-			left: random(80) + 10 + %;
+			left: random(80) + 10 * 1%;
 			//randomly set with a 50% change to be green or purple
 			@if random(100) > 50 {
 				background-color: limegreen;
