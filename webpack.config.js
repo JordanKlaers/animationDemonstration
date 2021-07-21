@@ -71,12 +71,11 @@ module.exports = {
 			}
 		]
 	},
-	mode: "production",
+	mode: "development",
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: 'Output Management',
-			template: 'src/index.html',
-			publicPath: 'testing/'
+			template: 'src/index.html'
 		}),
 		new HtmlWebpackHarddiskPlugin(),
 		// new UglifyJsPlugin(),
@@ -85,7 +84,7 @@ module.exports = {
 	],
 	output: {
 		filename: '[name].bundle.js',
-		path: path.resolve(__dirname, ''),
-		publicPath: '/'
+		path: path.resolve(__dirname, 'docs/'),
+		publicPath: '/animationDemonstration'
 	}
 };
