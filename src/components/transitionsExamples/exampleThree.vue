@@ -29,6 +29,7 @@ export default {
 	},
 	methods: {
 		getImagePath(color) {
+			console.log("path: ", require(`images/${color}.jpg`));
 			return require(`images/${color}.jpg`)
 		},
 		updateActiveIndex(index) {
