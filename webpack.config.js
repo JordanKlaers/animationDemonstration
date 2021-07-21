@@ -28,8 +28,7 @@ module.exports = {
 			'transitions': resolve('src/components/transitionsExamples'),
 			'keyFrame': resolve('src/components/keyFrameExamples'),
 			'animationFrame': resolve('src/components/animationFrameExamples')
-		},
-		root: path.resolve("./")
+		}
 	},
 	optimization: {
 		minimizer: [new TerserPlugin()],
@@ -72,11 +71,12 @@ module.exports = {
 			}
 		]
 	},
-	mode: "development",
+	mode: "production",
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: 'Output Management',
-			template: 'src/index.html'
+			template: 'src/index.html',
+			publicPath: 'testing/'
 		}),
 		new HtmlWebpackHarddiskPlugin(),
 		// new UglifyJsPlugin(),
