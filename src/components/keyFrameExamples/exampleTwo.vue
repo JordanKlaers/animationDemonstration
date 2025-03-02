@@ -43,11 +43,11 @@ export default {
 <style lang='scss'>
 
 //overview - mixin to pass variable to keyframe animations, mixin for setting animation properties (can pass a variable for different animation names with the same animation properties)
-@import 'scss/_mixins.scss';
+@use 'scss/_mixins.scss' as *;
 $frame-dimensions: 400;
 
 //it does not matter where a keyframe animation is declared (if its nested or not)
-//by wrapping the keyframe animationin a mixin, the mixin can be declared anywhere, allowing you to implement the animation in a place where you can pass a variable through the mixin to be used. 
+//by wrapping the keyframe animationin a mixin, the mixin can be declared anywhere, allowing you to implement the animation in a place where you can pass a variable through the mixin to be used.
 //Even the name of the animation could be set via a  variable
 @mixin top-keyframes($move-distance) {
     @keyframes top-keyframes{
@@ -64,7 +64,7 @@ $frame-dimensions: 400;
 			transform: rotate(0deg);
 		}
 		50% {
-			
+
 			background-color: blue;
 		}
 		74% {
@@ -138,7 +138,7 @@ $frame-dimensions: 400;
  	animation-fill-mode: forwards;
 	animation-timing-function: linear;
 	// animation-timing-function: cubic-bezier(.13,.92,.75,1.89); // the timing function applies each individual keyframe
- 	animation-delay: 0s; 
+ 	animation-delay: 0s;
 }
 
 #keyframe-example-two {

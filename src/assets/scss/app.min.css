@@ -1,0 +1,1 @@
+@use './variables' as *;@use './container'  as *;@use './_mixins'  as *;body,html{margin:0px;height:100%}*{box-sizing:border-box}#app{height:100%}#root{min-height:100%;padding:60px 0;background-color:var(--background-color);display:flex;overflow:hidden;position:relative}

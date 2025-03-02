@@ -11,7 +11,7 @@ export default {
 	},
 	data() {
 		let animationDuration = 3000;
-		return {			
+		return {
 			rainbowValue: 0,
 			shouldRunAnimation: true,
 			animationDuration,
@@ -67,11 +67,11 @@ export default {
 				this.rainbowValue =  0;
 			}
 
-			//the setTimeout shows that when there is a large delay in execution time, 
+			//the setTimeout shows that when there is a large delay in execution time,
 			//the animation does not complete in the anticipated time
 			//A slow computer or doing too much processing (computation for the animation that takes over 16ms to complete) will have the same affect
 
-			//this is because the animaiton is expecting/anticipating being able to execute  187.5 frames over 3 seconds, but due to 
+			//this is because the animaiton is expecting/anticipating being able to execute  187.5 frames over 3 seconds, but due to
 			//the delay of 100 ms between each call, there is about only 30 frames that get updated resulting in less completion.
 
 			//despit the potential pitfall, this requestAnimationFrame method is preferred over the previous example, because it appears much smoother
@@ -80,7 +80,7 @@ export default {
 
 			if (timestamp - this.startTimeStamp <= this.animationDuration) {
 				setTimeout(() => {
-					window.requestAnimationFrame(this.colorFade);	
+					window.requestAnimationFrame(this.colorFade);
 				}, 100);
 			} else {
 				this.rainbowValue = 0;
@@ -91,8 +91,8 @@ export default {
 };
 </script>
 <style lang='scss'>
-@import 'scss/_mixins.scss';
-@import 'scss/variables.scss';
+@use 'scss/_mixins.scss' as *;
+@use 'scss/variables.scss' as *;
 
 
 </style>

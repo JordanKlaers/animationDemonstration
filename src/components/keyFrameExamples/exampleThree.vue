@@ -16,6 +16,7 @@ export default {
 };
 </script>
 <style lang='scss'>
+@use 'sass:math';
 @keyframes spin{
   0%,100%{transform:translate(0)}
   25%{transform:translate(200%)}
@@ -33,8 +34,8 @@ export default {
 		div {
 			//positioned to allow for overlap/ setup the start of the animation
 			position: absolute;
-			width: $container-dim/3;
-			height: $container-dim/3;
+			width: math.div($container-dim, 3);
+			height: math.div($container-dim, 3);
 			border-radius: 50%;
 			animation-name: spin;
 			animation-duration: 2s;

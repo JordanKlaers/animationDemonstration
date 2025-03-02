@@ -38,13 +38,13 @@ export default {
 <style lang='scss'>
 
 //overview - single property / multiple properties
-@import 'scss/variables';
+@use 'scss/variables' as *;
 #transition-example-one {
 	.square {
 		// Adding the trasition property on the classes shared by the two elements will apply the same animation property to  all three blocks.
 
 		//transitions are always changes in CSS properties from value A to value B
-		// the four proprerties of transitions: 
+		// the four proprerties of transitions:
 		//<property>
 		//<duration>
 		//<timing-function>

@@ -1,24 +1,20 @@
 <template>
-	<div style="display: flex; width: 100%;">
+	<div id="container" style="display: flex; width: 100%;">
 		<div id="nav-container">
-			<div id="examples-nav-list" ref="nav-list-container">
-				<div class="grid-container">
-					<div v-for="(component, name, index) in components" class="item"
-						:key="index"
-						:class="{ active: componentDisplay[index] }"
-						v-on:click="updateActiveIndex(index)">
-						<component :key="component.name" :is="component" v-if="index !== 89"></component>
-					</div>
-				</div>
-			</div>
+      <div v-for="(component, name, index) in componentsList"
+        v-show="index <= desiredIndex + 1 && index >= desiredIndex - 1"
+        class="item"
+        :key="index"
+        :class="{ active: index == desiredIndex }"
+        v-on:click="updateActiveIndex(index)">
+        <component :key="component.name" :is="component"></component>
+      </div>
 		</div>
-		<div id='container'>
-			<template v-for="(component, name, index) in components">
-				<transition :key="component.name" :name="fadeDirection" v-on:after-leave="setAnimationCompleted" v-on:after-enter="setAnimationCompleted">
-					<component :key="component.name" :is="component" v-if="componentDisplay[index]"></component>
-				</transition>
-			</template>
-		</div>
+		<div id='animation-content'>
+      <transition v-for="(component, name, index) in componentsList" :key="component.name" :name="fadeDirection" @before-leave="onBeforeLeave" @after-leave="onAfterLeave">
+        <component :is="component" v-show="index == activeIndex"></component>
+      </transition>
+    </div>
 	</div>
 </template>
 
@@ -32,9 +28,9 @@ import KeyFrameThree from 'keyFrame/exampleThree.vue';
 import AnimationFrameOne from 'animationFrame/frameExampleOne.vue';
 import AnimationFrameTwo from 'animationFrame/frameExampleTwo.vue';
 import AnimationFrameThree from 'animationFrame/frameExampleThree.vue';
-
+import { computed, getCurrentInstance, nextTick } from 'vue';
 export default {
-	name: 'container',
+	name: 'animation-container',
 	components: {
 		TransitionOne,
 		TransitionTwo,
@@ -54,114 +50,119 @@ export default {
 	},
 	data() {
 		return {
+      desiredIndex: 0,
 			activeIndex: 0,
 			nextIndex: null,
 			fadeDirection: 'up',
-			isActivlyAnimating: false,
-			componentDisplay: []
+			isActivlyTransitioning: false
 		}
 	},
-	created() {
-
-		let displayArray = []
-		const lastComponentIndex = Object.keys(this.components).length - 1;
-		//on load set the active index to the last module, its the best one so lets see it first
-		this.activeIndex = lastComponentIndex
-		//on load, loop through the imported comopnents and for each, add true for the last and false for the rest, into the component display array used for rendering the components
-		this.$_.forEach(Object.keys(this.components), (value, index) => {
-				if (index === lastComponentIndex) displayArray.push(true)
-				else displayArray.push(false)
-			});
-		this.componentDisplay = displayArray
-	},
 	computed: {
-		components() {
+		componentsList() {
 			//looks at the imported components for this vue file and return the array of components
-			const numberOfComponents = this.$vnode && this.$vnode.componentOptions && this.$vnode.componentOptions.Ctor && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options && this.$vnode.componentOptions.Ctor.options.components && this.$vnode.componentOptions.Ctor.options.components
-			const components = Object.assign({}, numberOfComponents)
-			delete components.container
-			return components
+			const instance = getCurrentInstance();
+      if (!instance || !instance.type || !instance.type.components) return {};
+
+      const componentsInstanceList = { ...instance.type.components };
+      delete componentsInstanceList.container;
+      return componentsInstanceList;
 		},
 		numberOfComponents() {
 			//returns the number of components current used by this vue file
-			const numberOfComponents = Object.keys(this.components).length
+			const numberOfComponents = Object.keys(this.componentsList).length
 			return numberOfComponents
 		}
 	},
 	mounted() {
 		window.addEventListener('wheel', this.handleScroll)
-		let width = document.querySelector('#examples-nav-list').getBoundingClientRect().width
-		document.querySelector('#app #nav-container').style.setProperty('width', `${width + 20}px`);
-		window.addEventListener('resize', (event) => {
-			let width = document.querySelector('#examples-nav-list').getBoundingClientRect().width
-			document.querySelector('#app #nav-container').style.setProperty('width', `${width + 20}px`);
-		})
+		// let width = document.querySelector('#examples-nav-list')?.getBoundingClientRect().width || 0
+		// document.querySelector('#app #nav-container')?.style.setProperty('width', `${width + 20}px`);
+		// window.addEventListener('resize', () => {
+		// 	let width = document.querySelector('#examples-nav-list')?.getBoundingClientRect().width || 0
+		// 	document.querySelector('#app #nav-container')?.style.setProperty('width', `${width + 20}px`);
+		// })
 	},
 	methods: {
 		handleScroll(event) {
-			//the window height + the distance scrolled, should be equal to the heigh of the total content
-			//this value allows you to scroll down the page THEN scroll down for the next component
-			const isScrolledToBottom = Math.abs((window.innerHeight + window.scrollY) - document.body.scrollHeight) < 3
-			//detect the scroll direction on the mouse for which way the components will fade in/out and which component to load next
-			this.fadeDirection = event.deltaY < 0 ? 'up' : 'down'
-			//set all values in the display array to null so that they will not be rendered, triggering the animation through the vue transition element, that will use the up or down animation based on the scroll event
-			this.$nextTick(() => {
-				if ((this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down' && isScrolledToBottom) || (this.fadeDirection === 'up' && this.activeIndex > 0 && window.scrollY === 0)) {
-					this.componentDisplay = this.componentDisplay.map(() => false)
-					this.shouldLoadNextModule = true
-				}
-			})
+			this.fadeDirection = event.deltaY < 0 ? 'up' : 'down';
+      if (this.isActivlyTransitioning == false) {
+
+        if (this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down') {
+          this.desiredIndex = Math.min(this.activeIndex + 1, this.numberOfComponents - 1);
+          this.activeIndex = -1;
+        } else if (this.fadeDirection === 'up' && this.activeIndex > 0) {
+          this.desiredIndex = Math.max(this.activeIndex - 1, 0);
+          this.activeIndex = -1;
+        }
+      }
 		},
-		updateActiveIndex(index) {
-			if (this.activeIndex !== index) {
-				//saves the index of the licked nav tile to used by the leave animation callback so that when the current modules finishes leaving,
-				//the component display array can be updated referencing this next index for which module to update via the componentDisplay array
-				this.nextIndex = index
-				//sets the fade direction based on if the nav tile clicked had an index less or greater than the current index
-				this.fadeDirection = index < this.activeIndex ? 'up' : 'down'
-				//set all values in the display array to null so that they will not be rendered, triggering the animation through the vue transition element, that will use the up or down animation based on the fadeDirection
-				this.$nextTick(() => {
-					if ((this.activeIndex < this.numberOfComponents - 1 && this.fadeDirection === 'down') || (this.fadeDirection === 'up' && this.activeIndex > 0 && window.scrollY === 0)) {
-						this.componentDisplay = this.componentDisplay.map(() => false)
-						this.shouldLoadNextModule = true
-					}
-				})
-			}
-		},
-		setAnimationCompleted() {
-			//when the animation has completed for a module leaving view, this callback will update the component display array triggering the next component to display
-			if (this.shouldLoadNextModule) {
-				//if nextIndex was set via clicking one of the nav tiles, than update to have that module come into view
-				if (this.nextIndex !== null) this.activeIndex = this.nextIndex
-				//if the animation was triggered via scrolling, than bring the next/previous into view based on the scroll direciton
-				else if (this.fadeDirection === 'down' && this.activeIndex < this.numberOfComponents) this.activeIndex ++
-				else if (this.activeIndex > 0) this.activeIndex --
-				this.componentDisplay = this.componentDisplay.map((val, index) => index === this.activeIndex ? true : false)
-			}
-			this.nextIndex = null
-			this.shouldLoadNextModule = false
-		}
+    onBeforeLeave() {
+      this.isActivlyTransitioning = true;
+    },
+    onAfterLeave() {
+      this.isActivlyTransitioning = false;
+      this.activeIndex= this.desiredIndex;
+    },
+    updateActiveIndex(index) {
+      this.fadeDirection = index < this.activeIndex ? 'down' : 'up';
+      this.desiredIndex = index;
+      this.activeIndex = -1;
+    }
 	}
 };
 </script>
 <style lang="scss">
+@use 'sass:math';
+@use 'scss/container.scss' as *;
 .up-enter-active, .up-leave-active, .down-enter-active, .down-leave-active {
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
-.up-enter, .down-leave-to {
+.up-enter-from, .down-leave-to {
 	top: -150px;
 	opacity: 0;
 }
-.up-enter-to, .down-enter-to, .up-leave, .down-leave {
+.up-enter-to, .down-enter-to, .up-leave-from, .down-leave-from {
 	top: 0;
 	opacity: 1;
 }
-.down-enter, .up-leave-to {
+.down-enter-from, .up-leave-to {
 	top: 150px;
 	opacity: 0;
 }
+#container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
 
 #nav-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0 auto;
+  height: fit-content;
+  .item {
+    width: 70px;
+		height: 70px;
+    background-color: white;
+    cursor: pointer;
+    &.active {
+      transition: all .4s cubic-bezier(.13,.92,.75,1.89);
+      transform: scale(1.2);
+      box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+    }
+    > * {
+      pointer-events: none;
+      transform-origin: top left;
+      transform: scale(0.179);
+      top: 0;
+      left: 0;
+    }
+  }
+}
+
+#_nav-container {
 	display: inline-block;
 	margin-left: 30px;
 	#examples-nav-list {
@@ -265,8 +266,8 @@ export default {
 						height: $container-dim;
 						div {
 							margin-top: 0;
-							width: $container-dim/3;
-							height: $container-dim/3;
+							width: math.div($container-dim, 3);
+							height: math.div($container-dim, 3);
 							animation: none;
 							&:nth-of-type(2) {
 								transform:translate(200%)
@@ -310,13 +311,13 @@ export default {
 				    #login-text {
 						margin: 0;
 						font-size: 16px * $scale;
-						top: 130px * $scale; 
+						top: 130px * $scale;
 						height: 50px * $scale;
 						p {
 							max-width: fit-content;
 						}
 					}
-				  
+
 					svg {
 						width: 400px * $scale;
 						height: 400px * $scale;

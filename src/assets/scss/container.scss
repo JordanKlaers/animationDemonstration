@@ -1,6 +1,6 @@
-@import '_mixins';
-@import 'variables';
-#container {
+@use './_mixins' as *;
+@use './variables' as *;
+#animation-content {
 	display: inline-block;
 	margin: auto;
 }

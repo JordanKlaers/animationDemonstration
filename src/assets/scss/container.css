@@ -1,0 +1,76 @@
+@use './_mixins' as *;
+@use './variables' as *;
+#animation-content {
+  display: inline-block;
+  margin: auto;
+}
+
+.animation-example-frame {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  box-shadow: 4px 8px 16px 0 rgba(0, 0, 0, 0.1);
+  background: #fff;
+  color: #333;
+  padding: 10px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+.animation-example-frame .title {
+  position: absolute;
+  bottom: 400px;
+  color: black;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background-color: #2EE59D;
+  margin: 5px 0;
+  margin-left: -10px;
+  font-size: 18px;
+}
+
+.animation-example-frame .square {
+  position: absolute;
+  background-color: black;
+  height: 70px;
+  width: 70px;
+  margin: 10px;
+  left: 0px;
+  top: 0;
+}
+
+.animation-example-frame button.top-right-aligned {
+  position: absolute;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+  color: #000;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  width: 80px;
+}
+
+.animation-example-frame button.top-right-aligned:first-of-type {
+  bottom: 400px;
+  left: 230px;
+}
+
+.animation-example-frame button.top-right-aligned:last-of-type {
+  bottom: 400px;
+  left: 315px;
+}
+
+.animation-example-frame button.top-right-aligned:hover {
+  background-color: #2EE59D;
+  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+  color: #fff;
+  transform: translateY(-3px);
+}

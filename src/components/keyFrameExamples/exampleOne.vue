@@ -29,8 +29,8 @@ export default {
 <style lang='scss'>
 
 //overview - div rolling down side of screen / div dimensions changing
-@import 'scss/_mixins.scss';
-@import 'scss/variables.scss';
+@use 'scss/_mixins.scss' as *;
+@use 'scss/variables.scss' as *;
 
 @keyframes exampleAnimationOne{
 	0% {
@@ -42,10 +42,10 @@ export default {
 		//rotat 90 deg with this updated origin causes the div to appear to "roll" down the side of the screen
 		transform: rotate(90deg);
 		top: 0;
-		left: 0;	
+		left: 0;
 	}
 	26% {
-		//althought the square seems to have  moved down, its relative position is still uncahgned. 
+		//althought the square seems to have  moved down, its relative position is still uncahgned.
 		//Its position needs to be updated as well as the origin of  rotation to further produce the rolling down the edge effect.
 		left: -70px;
 		top: 70px;
@@ -138,7 +138,7 @@ export default {
 		animation-fill-mode: forwards;
 		animation-timing-function: linear;
 		// the timing function applies each individual keyframe
-		// animation-timing-function: cubic-bezier(.13,.92,.75,1.89); 
+		// animation-timing-function: cubic-bezier(.13,.92,.75,1.89);
 		animation-delay: 0s;
 		&.animation-class-one {
 			//name must match that of the keyframe animation name

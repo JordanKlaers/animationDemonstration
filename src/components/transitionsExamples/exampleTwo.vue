@@ -4,7 +4,7 @@
 		<div class="square" ref="slide"></div>
 		<div class="square" ref="grow"></div>
 		<div class="square" ref="rotate"></div>
-		
+
 	</div>
 </template>
 
@@ -41,7 +41,7 @@ export default {
 <style lang='scss'>
 
 //overview  - loop for positioning / individual transition values
-@import 'scss/variables';
+@use 'scss/variables' as *;
 #transition-example-two {
 	.square {
 		// Adding the trasition property on the classes shared by the tree elements will apply the same animation property to  all three blocks.
@@ -61,7 +61,7 @@ export default {
 			//this calculation moves the div to the left equal to the width of the parent container. Subtracting the squares width and the left and right padding, allows for the square to move from the left side aligning with the left of parent to having the right side align with the right of  the parent
 			left: ($animation-frame-dimension - $square-dim - ($spacer * 2)) + px;
 		}
-		&.grow { 
+		&.grow {
 			transition: all 10s ease;
 			//increaes the squares size by 2
 			height: ($square-dim * 2) + px;

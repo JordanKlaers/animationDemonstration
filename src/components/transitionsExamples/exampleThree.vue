@@ -1,13 +1,13 @@
 <template>
-	<div class="animation-example-frame" id="transition-example-three" ref="container-frame" tabindex="0">
+  <div class="animation-example-frame" id="transition-example-three" ref="container-frame" tabindex="0">
 		<span class="title">Transition Example Three</span>
 		<div class="tabs-container">
-			<template v-for="(entry, index) in tabs">
-				<div :class="`tab-${index}`" :key="`tab-${entry}`" @click="() => updateActiveIndex(index)">{{entry}}</div>
-				<span class='image-container' :key="entry" :class="{ 'in-view': (index === activeIndex && !shouldHide)}">
+			<div v-for="(entry, index) in tabs" :key="`tab-${entry}`">
+				<div :class="`tab-${index}`"  @click="() => updateActiveIndex(index)">{{entry}}</div>
+				<span class='image-container' :class="{ 'in-view': (index === activeIndex && !shouldHide)}">
 					<img :src="getImagePath(entry)"/>
 				</span>
-			</template>
+      </div>
 		</div>
 	</div>
 </template>
@@ -21,7 +21,8 @@ export default {
 		return {
 			tabs: ['red', 'orange', 'yellow', 'limegreen', 'green', 'turquoise', 'blue', 'purple', 'pink'],
 			activeIndex: -1,
-			shouldHide: false
+			shouldHide: false,
+      images: import.meta.glob('/src/assets/images/*.jpg', { eager: true })
 		}
 	},
 	mounted() {
@@ -29,9 +30,8 @@ export default {
 	},
 	methods: {
 		getImagePath(color) {
-			console.log("path: ", require(`images/${color}.jpg`));
-			return require(`images/${color}.jpg`)
-		},
+      return this.images[`/src/assets/images/${color}.jpg`]?.default || '';
+    },
 		updateActiveIndex(index) {
 			if (index === this.activeIndex) {
 				this.toggleHideCurrentIndex()
@@ -57,9 +57,9 @@ export default {
 };
 </script>
 <style lang='scss'>
-
+@use 'sass:list';
 // overview - vertically expanding tabs with bottom aligned content / for loop to apply colors/styles
-@import 'scss/_mixins.scss';
+@use 'scss/_mixins' as *;
 #transition-example-three {
 	.tabs-container {
 		height: 100%;
@@ -67,7 +67,7 @@ export default {
 		flex-direction: column;
 		$colors: red, orange, yellow, limeGreen, green, turquoise, blue, purple, pink;
 		//loop through the colors variable array
-		@for $i from 1 through length($colors) {
+		@for $i from 1 through list.length($colors) {
 			//for each index in the array, reference the tab class name and apply the corresponding color for the $colors array
 			.tab-#{$i - 1} {
 				font-family: cursive;
@@ -80,7 +80,7 @@ export default {
 				font-size: 16px;
 				@include border-rounded-corners(2px, 5px);
 				//using scss syntax, apply the color for the array that matches the index the loop is currently on
-				background-color: nth($colors, $i);
+				background-color: list.nth($colors, $i);
 			}
 		}
 		.image-container {
